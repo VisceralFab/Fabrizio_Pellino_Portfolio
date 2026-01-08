@@ -79,27 +79,44 @@
 }
 
 .blender-icon {
+    background: linear-gradient(135deg, #331a00, #1a0d00);
     border-color: #ff6600;
 }
 
 .catia-icon {
+    background: linear-gradient(135deg, #001a33, #000d1a);
     border-color: #0066cc;
 }
 
 .rhino-icon {
-    border-color: #ffffff;
+    background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+    border-color: #888888;
 }
 
 .davinci-icon {
     border: 2px solid transparent;
     background: linear-gradient(#1e232d, #1e232d) padding-box,
-        linear-gradient(135deg, #ff0000, #ff8000, #ffff00, #00ff00, #0000ff, #4b0082, #ee82ee) border-box;
+        linear-gradient(135deg,
+            rgba(255, 0, 0, 0.6),
+            rgba(255, 128, 0, 0.6),
+            rgba(255, 255, 0, 0.6),
+            rgba(0, 255, 0, 0.6),
+            rgba(0, 128, 255, 0.6),
+            rgba(75, 0, 130, 0.6),
+            rgba(238, 130, 238, 0.6)) border-box;
 }
 
 .davinci-icon:hover {
     border-color: transparent;
     background: linear-gradient(#282d37, #282d37) padding-box,
-        linear-gradient(135deg, #ff0000, #ff8000, #ffff00, #00ff00, #0000ff, #4b0082, #ee82ee) border-box;
+        linear-gradient(135deg,
+            rgba(255, 0, 0, 0.8),
+            rgba(255, 128, 0, 0.8),
+            rgba(255, 255, 0, 0.8),
+            rgba(0, 255, 0, 0.8),
+            rgba(0, 128, 255, 0.8),
+            rgba(75, 0, 130, 0.8),
+            rgba(238, 130, 238, 0.8)) border-box;
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
 }
 
