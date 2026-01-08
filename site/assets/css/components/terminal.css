@@ -1,0 +1,134 @@
+/* Terminal Window */
+.terminal-window {
+    position: relative;
+    z-index: 1;
+    width: 95%;
+    max-width: 1200px;
+    background: rgba(10, 10, 10, 0.95);
+    border-radius: 12px;
+    box-shadow:
+        0 0 60px rgba(0, 180, 180, 0.1),
+        0 25px 50px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    border: 1px solid rgba(60, 70, 90, 0.5);
+}
+
+/* Conditional Scrolling Mode */
+.terminal-window.scroll-mode {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+/* Terminal Header */
+.terminal-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: rgba(18, 18, 18, 0.9);
+    border-bottom: 1px solid rgba(60, 70, 90, 0.3);
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.terminal-buttons span {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.btn-close {
+    background: #ff5f56;
+}
+
+.btn-minimize {
+    background: #ffbd2e;
+}
+
+.btn-maximize {
+    background: #27ca40;
+}
+
+.terminal-title {
+    flex: 1;
+    text-align: center;
+    color: #8a9199;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.folder-icon {
+    margin-right: 6px;
+}
+
+.terminal-session {
+    color: #6a7179;
+    font-size: 12px;
+}
+
+/* Terminal Body */
+.terminal-body {
+    padding: 30px 40px 40px;
+    min-height: 500px;
+}
+
+/* Scroll Mode Body */
+.terminal-window.scroll-mode .terminal-body {
+    min-height: 0;
+    /* Allow shrinking */
+    flex: 1;
+    overflow-y: auto;
+    /* Custom Scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: #00d4d4 rgba(26, 26, 26, 0.6);
+}
+
+/* Webkit Scrollbar Styling */
+.terminal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+    background: rgba(26, 26, 26, 0.6);
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+    background-color: #008080;
+    border-radius: 4px;
+    border: 2px solid rgba(26, 26, 26, 0.6);
+}
+
+.terminal-body::-webkit-scrollbar-thumb:hover {
+    background-color: #00d4d4;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 900px) {
+    .terminal-window {
+        width: 98%;
+        max-width: 100%;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 600px) {
+    .terminal-header {
+        padding: 10px 12px;
+    }
+
+    .terminal-title {
+        font-size: 11px;
+    }
+
+    .terminal-session {
+        display: none;
+    }
+
+    .terminal-body {
+        padding: 20px 15px 30px;
+    }
+}

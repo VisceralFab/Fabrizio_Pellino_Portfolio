@@ -1,0 +1,79 @@
+/* Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0a0a0f;
+    font-family: 'Fira Code', monospace;
+    overflow-x: hidden;
+    padding: 20px;
+}
+
+/* Background Glow Effect */
+.background-glow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 600px;
+    background: radial-gradient(ellipse at center,
+            rgba(0, 180, 180, 0.15) 0%,
+            rgba(0, 120, 120, 0.08) 30%,
+            rgba(0, 60, 60, 0.03) 50%,
+            transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLine {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes blink {
+
+    0%,
+    50% {
+        opacity: 1;
+    }
+
+    51%,
+    100% {
+        opacity: 0;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+}

@@ -1,0 +1,61 @@
+/* Cursor prompt */
+.cursor-prompt {
+    color: #ffffff;
+    font-weight: 400;
+    font-size: bold;
+}
+
+/* Cursor blink effect */
+.cursor-prompt::after {
+    content: '';
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: #ffffff;
+    margin-left: 2px;
+    animation: blink 1s infinite;
+    vertical-align: text-bottom;
+}
+
+/* Name Section */
+.terminal-name {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #e8eaed;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Loading Messages */
+.loading-messages {
+    margin-bottom: 30px;
+}
+
+.loading-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.status-ok {
+    color: #00d4d4;
+    font-weight: 500;
+}
+
+.loading-text {
+    color: #7a8a9a;
+}
+
+/* Responsive - Mobile */
+@media (max-width: 600px) {
+    .terminal-name {
+        font-size: 1.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
