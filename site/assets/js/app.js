@@ -51,11 +51,6 @@ function updateUI(sectionName) {
     } else {
         terminalWindow.classList.remove('scroll-mode');
     }
-
-    // Ensure the section is visible (if CSS animation depends on .active class on the section itself)
-    // Since we are replacing innerHTML, the fetch content should already have the class or we add it to the container children.
-    // The extracted HTML files have <section id="..." class="section active">.
-    // So usually no extra JS needed for visibility, but good to double check.
 }
 
 window.addEventListener('hashchange', loadPage);
