@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Fabrizio Pellino - UI-UX Designer Portfolio">
+    <title>Fabrizio Pellino | UI-UX Designer</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-glow"></div>
+
+    <div class="terminal-window">
+        <!-- Terminal Header -->
+        <div class="terminal-header">
+            <div class="terminal-buttons">
+                <span class="btn-close"></span>
+                <span class="btn-minimize"></span>
+                <span class="btn-maximize"></span>
+            </div>
+            <div class="terminal-title">
+                Fabrizio_Pellino@portfolio:~/home
+            </div>
+            <div class="terminal-session">bash:~-login</div>
+        </div>
+
+        <!-- Terminal Body -->
+        <div class="terminal-body">
+            <!-- Home Section -->
+            <section id="home" class="section active">
+                <!-- Name Section -->
+                <h1 class="terminal-name">
+                    <span class="cursor-prompt">>_</span> Fabrizio Pellino
+                </h1>
+
+                <!-- Loading Messages -->
+                <div class="loading-messages">
+                    <div class="loading-line">
+                        <span class="status-ok">[OK]</span>
+                        <span class="loading-text">Loading core modules...</span>
+                    </div>
+                    <div class="loading-line">
+                        <span class="status-ok">[OK]</span>
+                        <span class="loading-text">Inizializing UI Interface...</span>
+                    </div>
+                    <div class="loading-line">
+                        <span class="status-ok">[OK]</span>
+                        <span class="loading-text">Mounting projects database...</span>
+                    </div>
+                </div>
+
+                <!-- Bio Section -->
+                <div class="bio-section">
+                    <div class="bio-indicator"></div>
+                    <p class="bio-text">
+                        <span class="root-prompt">root@system:</span> UI-UX Designer with a background of product,
+                        usability and visual.
+                    </p>
+                </div>
+
+                <!-- Navigation -->
+                <div class="navigation-section">
+                    <p class="index-label">index_portfolio:</p>
+                    <div class="nav-buttons">
+                        <a href="#about" class="nav-btn">About me</a>
+                        <a href="#projects" class="nav-btn">Projects</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Me Section -->
+            <section id="about" class="section">
+                <a href="#home" class="back-link">← back to home</a>
+
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-photo">
+                        <img src="fabrizio.png" alt="Fabrizio Pellino"
+                            onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%23333%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2255%22 text-anchor=%22middle%22 fill=%22%23888%22 font-size=%2240%22>FP</text></svg>'">
+                    </div>
+
+                    <div class="profile-info">
+                        <h1 class="profile-name">
+                            <span class="uid-label">UID:</span> Fabrizio Pellino
+                        </h1>
+                        <p class="profile-detail">
+                            <span class="detail-label">Class:</span> Designer
+                        </p>
+                        <p class="profile-detail">
+                            <span class="detail-label">Degree:</span> Bachelor's Degree in Community Design (Co.De) at
+                            Università degli Studi di Napoli "Federico II"
+                        </p>
+                    </div>
+
+                    <div class="profile-contact">
+                        <p class="contact-item">
+                            <span class="contact-label">Language:</span> Italian - English
+                        </p>
+                        <p class="contact-item">
+                            <span class="contact-label">E-mail:</span> fabrizio.pellino.na@gmail.com
+                        </p>
+                        <p class="contact-item">
+                            <span class="contact-label">Tel:</span> +39 3314746584
+                        </p>
+                    </div>
+                </div>
+
+                <!-- About Content -->
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3 class="section-label">info_about_me:</h3>
+
+                        <p class="about-paragraph">
+                            My background combines technical training in mechatronics and 3D modelling with a degree in
+                            Community Design, graduated from Università degli Studi di Napoli Federico II.
+                        </p>
+
+                        <p class="about-paragraph">
+                            I have developed cross-disciplinary skills through meaningful experiences: from mechanical
+                            design and 3D modelling in CATIA at Protom S.p.A. during my scholar intership at I.T.I
+                            Augusto Righi di Napoli, to developing visual identities for healthcare institutionAORN
+                            Santobono-Pausilipon.
+                        </p>
+
+                        <p class="about-paragraph">
+                            I also participated in the Apple Foundation Program at the Apple Developer Academy,
+                            deepening my understanding of digital design and approaches to technological innovation.
+                        </p>
+
+                        <h3 class="section-label">info_skills:</h3>
+
+                        <p class="about-paragraph">
+                            I master tools ranging from three-dimensional modelling (CATIA, Rhinoceros, Blender) to
+                            graphic design and post-production (Adobe Suite, DaVinci Resolve), using them as means to
+                            build interfaces between technical systems and people.
+                        </p>
+                    </div>
+
+                    <!-- Skills Panel -->
+                    <div class="skills-panel">
+                        <h3 class="skills-title">Skills</h3>
+
+                        <div class="skills-grid">
+                            <div class="skill-item">
+                                <div class="skill-icon ai-icon">Ai</div>
+                                <span class="skill-name">Illustrator</span>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-icon ps-icon">Ps</div>
+                                <span class="skill-name">Photoshop</span>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-icon id-icon">Id</div>
+                                <span class="skill-name">Indesign</span>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-icon blender-icon">
+                                    <img src="blender.svg" alt="Blender">
+                                </div>
+                                <span class="skill-name">Blender</span>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-icon catia-icon">
+                                    <img src="CATIA_logo.svg" alt="Catia">
+                                </div>
+                                <span class="skill-name">Catia</span>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-icon rhino-icon">
+                                    <img src="rhino.svg" alt="Rhino">
+                                </div>
+                                <span class="skill-name">Rhino 7/8</span>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-icon davinci-icon">
+                                    <img src="DaVinci.svg" alt="DaVinci Resolve">
+                                </div>
+                                <span class="skill-name">DaVinci Resolve</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects" class="section">
+                <a href="#home" class="back-link">← back to home</a>
+
+                <p class="index-label">Index_Projects:</p>
+
+                <div class="projects-grid">
+                    <!-- Project 1 -->
+                    <a href="#project-subaquea" class="project-card">
+                        <h3 class="project-title">SubAquea</h3>
+                        <p class="project-category">Community Design</p>
+                        <div class="project-description">
+                            <p>Product Design for</p>
+                            <p>Ma.Vi. Ceramica</p>
+                            <p>Cava de' Tirreni (SA)</p>
+                        </div>
+                    </a>
+
+                    <!-- Project 2 -->
+                    <div class="project-card">
+                        <h3 class="project-title">Opera Omnia</h3>
+                        <p class="project-category">Community Design</p>
+                        <div class="project-description">
+                            <p>Videomapping for</p>
+                            <p>Variabile K.</p>
+                            <p>Ercolano (NA)</p>
+                        </div>
+                    </div>
+
+                    <!-- Project 3 -->
+                    <div class="project-card">
+                        <h3 class="project-title">Straight<br>Outta Napule</h3>
+                        <p class="project-category">Community Design</p>
+                        <div class="project-description">
+                            <p>Short-film winner of the</p>
+                            <p>Afragola Film Festival</p>
+                            <p>Afragola (NA)</p>
+                        </div>
+                    </div>
+
+                    <!-- Project 4 -->
+                    <div class="project-card">
+                        <h3 class="project-title">Fede•Link</h3>
+                        <p class="project-category">Community Design</p>
+                        <div class="project-description">
+                            <p>Product Design for</p>
+                            <p>UNINA</p>
+                            <p>Napoli (NA)</p>
+                        </div>
+                    </div>
+
+                    <!-- Project 5 -->
+                    <div class="project-card">
+                        <h3 class="project-title">S_OS</h3>
+                        <p class="project-category">Thesis Project</p>
+                        <div class="project-description">
+                            <p>Brand Identity for</p>
+                            <p>AORN Santobono-Pausilipon</p>
+                            <p>Napoli (NA)</p>
+                        </div>
+                    </div>
+
+                    <!-- Project 6 -->
+                    <div class="project-card">
+                        <h3 class="project-title">Pathfinder</h3>
+                        <p class="project-category">Apple Foundation Program</p>
+                        <div class="project-description">
+                            <p>UI-UX Design for</p>
+                            <p>Apple Developer Academy</p>
+                            <p>Napoli (NA)</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Project Detail: SubAquea -->
+            <section id="project-subaquea" class="section">
+                <a href="#projects" class="back-link">← back to projects</a>
+
+                <h1 class="project-detail-title"><span class="project-number">1#</span> SubAquea</h1>
+
+                <div class="project-detail-content">
+                    <div class="project-main">
+                        <div class="project-image">
+                            <img src="subaquea.jpg" alt="SubAquea Project"
+                                onerror="this.style.background='linear-gradient(135deg, #1a3a5c, #2d5a87)'; this.style.minHeight='300px';">
+                        </div>
+
+                        <h3 class="section-label">info_SubAquea:</h3>
+                        <p class="project-info-text">
+                            The SubAquea ceramic collection draws inspiration from "Toledo" metro station of Napoli
+                            "Linea 1" to develop forms that embody the aesthetics and design of the iconic station.
+                        </p>
+                    </div>
+
+                    <div class="project-sidebar">
+                        <h3 class="sidebar-title">Software</h3>
+                        <div class="software-icons">
+                            <div class="software-item">
+                                <div class="skill-icon ai-icon">Ai</div>
+                                <span class="skill-name">Illustrator</span>
+                            </div>
+                            <div class="software-item">
+                                <div class="skill-icon blender-icon">
+                                    <img src="blender.svg" alt="Blender">
+                                </div>
+                                <span class="skill-name">Blender</span>
+                            </div>
+                        </div>
+
+                        <div class="project-meta">
+                            <p><span class="meta-label">Proff:</span></p>
+                            <p class="meta-value">Arch. Alfonso Morone</p>
+                            <p class="meta-value">Arch. Daniele della Porta</p>
+                        </div>
+
+                        <div class="project-meta">
+                            <p><span class="meta-label">Course:</span></p>
+                            <p class="meta-value">Product Design</p>
+                        </div>
+
+                        <h3 class="section-label">details_render:</h3>
+                        <div class="render-details">
+                            <p><span class="meta-label">Ratio:</span> 2560x1440</p>
+                            <p><span class="meta-label">GPU:</span> NVIDIA RTX 4070</p>
+                            <p><span class="meta-label">Sample:</span> 1500</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script>
+        // Handle section navigation
+        function updateSection() {
+            const hash = window.location.hash || '#home';
+            const sections = document.querySelectorAll('.section');
+            const terminalTitle = document.querySelector('.terminal-title');
+
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            const activeSection = document.querySelector(hash);
+            if (activeSection) {
+                activeSection.classList.add('active');
+
+                // Update terminal title based on section
+                const sectionName = hash.replace('#', '');
+                if (sectionName === 'home') {
+                    terminalTitle.innerHTML = 'Fabrizio_Pellino@portfolio:~/home';
+                } else {
+                    terminalTitle.innerHTML = 'Fabrizio_Pellino@portfolio:~/' + sectionName;
+                }
+            }
+        }
+
+        window.addEventListener('hashchange', updateSection);
+        document.addEventListener('DOMContentLoaded', updateSection);
+    </script>
+</body>
+
+</html>
