@@ -70,6 +70,80 @@
     font-size: 12px;
 }
 
+/* Navigation Bar */
+.terminal-navbar {
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(30, 30, 30, 0.95);
+    border-bottom: 1px solid rgba(60, 70, 90, 0.3);
+    gap: 8px;
+}
+
+.nav-arrow {
+    background: transparent;
+    border: none;
+    color: #8a9199;
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.nav-arrow:hover:not(:disabled) {
+    background: rgba(60, 70, 90, 0.5);
+    color: #ffffff;
+}
+
+.nav-arrow:disabled {
+    color: #4a5159;
+    cursor: not-allowed;
+}
+
+.nav-arrow:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.nav-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    flex: 1;
+}
+
+.breadcrumb-home {
+    color: #8a9199;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-home:hover {
+    color: #00d4d4;
+}
+
+.breadcrumb-separator {
+    color: #6a7179;
+    font-size: 14px;
+}
+
+.breadcrumb-path {
+    color: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-path:hover {
+    color: #00d4d4;
+}
+
 /* Terminal Body */
 .terminal-body {
     padding: 30px 40px 40px;
