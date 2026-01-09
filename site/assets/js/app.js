@@ -11,6 +11,7 @@ const addressInput = document.getElementById('address-input');
 // History management
 let navigationHistory = [];
 let historyIndex = -1;
+let isTraversingHistory = false;
 
 // Simple Router
 async function loadPage(addToHistory = true) {
@@ -23,12 +24,17 @@ async function loadPage(addToHistory = true) {
 
     // Manage history
     if (addToHistory) {
-        // Remove forward history if navigating to new page
-        if (historyIndex < navigationHistory.length - 1) {
-            navigationHistory = navigationHistory.slice(0, historyIndex + 1);
+        if (isTraversingHistory) {
+            // If traversing, don't modify history array, just reset flag
+            isTraversingHistory = false;
+        } else {
+            // Remove forward history if navigating to new page
+            if (historyIndex < navigationHistory.length - 1) {
+                navigationHistory = navigationHistory.slice(0, historyIndex + 1);
+            }
+            navigationHistory.push(hash);
+            historyIndex = navigationHistory.length - 1;
         }
-        navigationHistory.push(hash);
-        historyIndex = navigationHistory.length - 1;
     }
 
     // Determine file to load
@@ -85,19 +91,21 @@ function updateNavButtons() {
 // Navigation event handlers
 navBack.addEventListener('click', () => {
     if (historyIndex > 0) {
+        isTraversingHistory = true;
         historyIndex--;
         const targetHash = navigationHistory[historyIndex];
         window.location.hash = targetHash;
-        loadPage(false);
+        // loadPage is triggered by hashchange
     }
 });
 
 navForward.addEventListener('click', () => {
     if (historyIndex < navigationHistory.length - 1) {
+        isTraversingHistory = true;
         historyIndex++;
         const targetHash = navigationHistory[historyIndex];
         window.location.hash = targetHash;
-        loadPage(false);
+        // loadPage is triggered by hashchange
     }
 });
 
