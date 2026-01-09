@@ -6,8 +6,7 @@ const terminalWindow = document.querySelector('.terminal-window');
 const navBack = document.getElementById('nav-back');
 const navForward = document.getElementById('nav-forward');
 const navRefresh = document.getElementById('nav-refresh');
-const breadcrumbHome = document.getElementById('breadcrumb-home');
-const breadcrumbPath = document.getElementById('breadcrumb-path');
+const addressInput = document.getElementById('address-input');
 
 // History management
 let navigationHistory = [];
@@ -67,8 +66,8 @@ function updateUI(sectionName) {
         terminalTitle.innerHTML = 'Fabrizio_Pellino@portfolio:~/' + displaySection;
     }
 
-    // Update breadcrumb
-    updateBreadcrumb(sectionName);
+    // Update address bar
+    addressInput.value = '~/' + displaySection;
 
     // Toggle internal scrolling for projects (except Fede Link which is single page)
     if ((sectionName.startsWith('project') && sectionName !== 'project-fede-link') || sectionName === 'projects') {
@@ -76,19 +75,6 @@ function updateUI(sectionName) {
     } else {
         terminalWindow.classList.remove('scroll-mode');
     }
-}
-
-function updateBreadcrumb(sectionName) {
-    let displayName = sectionName.charAt(0).toUpperCase() + sectionName.slice(1);
-
-    if (sectionName.startsWith('project-')) {
-        const projectName = sectionName.replace('project-', '').split('-').map(
-            word => word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ');
-        displayName = 'Projects › ' + projectName;
-    }
-
-    breadcrumbPath.textContent = displayName;
 }
 
 function updateNavButtons() {
@@ -119,14 +105,30 @@ navRefresh.addEventListener('click', () => {
     loadPage(false);
 });
 
-breadcrumbHome.addEventListener('click', () => {
-    window.location.hash = 'home';
-});
+// Address bar interaction
+addressInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        let inputVal = addressInput.value.trim();
 
-breadcrumbPath.addEventListener('click', () => {
-    const currentHash = window.location.hash.replace('#', '');
-    if (currentHash.startsWith('project-')) {
-        window.location.hash = 'projects';
+        // Remove '~/' prefix if present
+        if (inputVal.startsWith('~/')) {
+            inputVal = inputVal.substring(2);
+        }
+
+        // Handle 'projects/' prefix
+        if (inputVal.startsWith('projects/')) {
+            inputVal = inputVal.replace('projects/', 'project-');
+        }
+
+        // Handle empty or root
+        if (!inputVal || inputVal === 'home') {
+            window.location.hash = 'home';
+        } else {
+            window.location.hash = inputVal;
+        }
+
+        // Blur to show completion
+        addressInput.blur();
     }
 });
 
