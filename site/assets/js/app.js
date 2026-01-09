@@ -45,8 +45,8 @@ function updateUI(sectionName) {
         terminalTitle.innerHTML = 'Fabrizio_Pellino@portfolio:~/' + displaySection;
     }
 
-    // Toggle internal scrolling for projects
-    if (sectionName.startsWith('project') || sectionName === 'projects') {
+    // Toggle internal scrolling for projects (except Fede Link which is single page)
+    if ((sectionName.startsWith('project') && sectionName !== 'project-fede-link') || sectionName === 'projects') {
         terminalWindow.classList.add('scroll-mode');
     } else {
         terminalWindow.classList.remove('scroll-mode');
