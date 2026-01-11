@@ -56,6 +56,26 @@
 
 
 
+/* Project Navigation */
+.project-nav-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.project-nav-link {
+    display: inline-block;
+    color: #00d4d4;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.3s ease;
+}
+
+.project-nav-link:hover {
+    color: #00d4d4;
+}
+
 /* Responsive - Mobile */
 @media (max-width: 600px) {
     .nav-buttons {
