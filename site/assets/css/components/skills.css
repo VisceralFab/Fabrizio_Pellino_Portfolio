@@ -102,6 +102,16 @@
             rgba(238, 130, 238, 0.4)) border-box;
 }
 
+.xcode-icon {
+    background: linear-gradient(135deg, #001122, #000911);
+    border-color: #1575F9;
+}
+
+.sketch-icon {
+    background: linear-gradient(135deg, #261a00, #1a1100);
+    border-color: #FDB300;
+}
+
 /* Responsive - Tablet */
 @media (max-width: 900px) {
     .skills-panel {
