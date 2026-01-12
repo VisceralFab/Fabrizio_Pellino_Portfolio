@@ -28,7 +28,11 @@
     gap: 15px;
 }
 
-/* Loading Messages */
+.name-text {
+    display: inline;
+}
+
+/* Loading Messages - Linux Kernel Style */
 .loading-messages {
     margin-bottom: 30px;
 }
@@ -39,15 +43,70 @@
     gap: 12px;
     margin-bottom: 6px;
     font-size: 14px;
+    transition: opacity 0.1s ease;
 }
 
 .status-ok {
-    color: #00d4d4;
-    font-weight: 500;
+    color: #00ff00;
+    font-weight: 600;
+    font-family: monospace;
+    min-width: 60px;
 }
 
 .loading-text {
-    color: #7a8a9a;
+    color: #e8eaed;
+}
+
+/* Bio Section - Linux Terminal Style */
+.bio-section {
+    margin-bottom: 30px;
+    transition: opacity 0.2s ease;
+}
+
+.bio-prompt-line {
+    font-size: 14px;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.user-host {
+    color: #00ff00;
+    font-weight: 600;
+}
+
+.path {
+    color: #5599ff;
+    font-weight: 500;
+}
+
+.branch {
+    color: #ff00ff;
+    font-style: italic;
+}
+
+.current-file {
+    color: #888888;
+    font-size: 12px;
+    margin-bottom: 8px;
+    font-style: italic;
+}
+
+.bio-text {
+    color: #e8eaed;
+    font-size: 15px;
+    line-height: 1.7;
+    margin-top: 10px;
+}
+
+.prompt-symbol {
+    color: #00d4d4;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+/* Navigation Section */
+.navigation-section {
+    transition: opacity 0.2s ease;
 }
 
 /* Responsive - Mobile */
@@ -57,6 +116,14 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
+    }
+    
+    .bio-prompt-line {
+        font-size: 12px;
+    }
+    
+    .bio-text {
+        font-size: 13px;
     }
 }
 
@@ -76,12 +143,9 @@
 }
 
 @keyframes blink {
-
-    0%,
-    100% {
+    0%, 100% {
         opacity: 1;
     }
-
     50% {
         opacity: 0;
     }

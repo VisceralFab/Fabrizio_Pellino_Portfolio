@@ -87,6 +87,100 @@
     display: block;
 }
 
+/* IMAGE ZOOM OVERLAY ("At a Glance") */
+.image-zoom-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-out;
+    backdrop-filter: blur(4px);
+}
+
+.image-zoom-overlay.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.image-zoom-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 16px;
+    overflow: hidden;
+    background: radial-gradient(circle at top left, #111826 0%, #05070b 55%, #020308 100%);
+    border: 1px solid rgba(0, 212, 212, 0.35);
+    box-shadow:
+        0 0 40px rgba(0, 0, 0, 0.7),
+        0 0 60px rgba(0, 212, 212, 0.12);
+}
+
+.image-zoom-img {
+    display: block;
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    transform-origin: center center;
+    transform: scale(1);
+    transition: transform 0.08s ease-out;
+}
+
+.image-zoom-img.zoom-active {
+    transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+    transform: scale(2.4);
+}
+
+.image-zoom-lens {
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 212, 212, 0.8);
+    box-shadow:
+        0 0 0 1px rgba(5, 10, 20, 0.9),
+        0 0 25px rgba(0, 212, 212, 0.45);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.08s ease-out;
+    background: radial-gradient(circle at center,
+            rgba(0, 212, 212, 0.24) 0%,
+            rgba(0, 212, 212, 0.03) 40%,
+            transparent 70%);
+}
+
+.image-zoom-lens.is-active {
+    opacity: 1;
+}
+
+.image-zoom-hint {
+    position: absolute;
+    left: 18px;
+    bottom: 14px;
+    font-size: 11px;
+    color: rgba(220, 240, 255, 0.85);
+    font-family: 'Fira Code', monospace;
+    background: rgba(3, 8, 15, 0.9);
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(90, 110, 140, 0.7);
+    backdrop-filter: blur(3px);
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.image-zoom-hint::before {
+    content: '⌃ + ⟐';
+    font-size: 10px;
+    color: #00d4d4;
+}
+
 .project-info-text {
     color: #ffffff;
     font-size: 14px;

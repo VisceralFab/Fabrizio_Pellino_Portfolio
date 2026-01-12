@@ -13,6 +13,12 @@ let navigationHistory = [];
 let historyIndex = -1;
 let isTraversingHistory = false;
 
+// Image zoom overlay elements
+let zoomOverlay = null;
+let zoomOverlayImg = null;
+let zoomOverlayLens = null;
+let isLensActive = false;
+
 // Simple Router
 async function loadPage(addToHistory = true) {
     let hash = window.location.hash.replace('#', '');
@@ -39,7 +45,7 @@ async function loadPage(addToHistory = true) {
 
     // Determine file to load
     const fileName = hash + '.html';
-    const filePath = 'assets/html/' + fileName;
+    const filePath = '/assets/html/' + fileName;
 
     try {
         const response = await fetch(filePath);
@@ -52,6 +58,14 @@ async function loadPage(addToHistory = true) {
         // Post-load logic
         updateUI(hash);
         updateNavButtons();
+
+        // Trigger home animation if on home page
+        if (hash === 'home') {
+            setTimeout(() => animateHomeKernel(), 50);
+        }
+
+        // Initialize interactive behaviors for the newly injected content
+        initProjectImageZoom();
     } catch (error) {
         console.error('Failed to load page:', error);
         appContainer.innerHTML = `<p style="color: #ff5f56; font-family: 'Fira Code', monospace;">Error loading module: ${hash}. System halted.</p>`;
@@ -143,6 +157,131 @@ addressInput.addEventListener('keydown', (e) => {
 window.addEventListener('hashchange', () => loadPage(true));
 document.addEventListener('DOMContentLoaded', () => loadPage(true));
 
+// ----- Image Zoom ("At a Glance") -----
+
+function ensureZoomOverlay() {
+    if (zoomOverlay) return;
+
+    zoomOverlay = document.createElement('div');
+    zoomOverlay.className = 'image-zoom-overlay';
+    zoomOverlay.innerHTML = `
+        <div class="image-zoom-content">
+            <img class="image-zoom-img" alt="Zoomed project image">
+            <div class="image-zoom-lens"></div>
+            <div class="image-zoom-hint">
+                Ctrl + Click on any project image to open. Hold left click to inspect details. Press Esc or click outside to close.
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(zoomOverlay);
+
+    zoomOverlayImg = zoomOverlay.querySelector('.image-zoom-img');
+    zoomOverlayLens = zoomOverlay.querySelector('.image-zoom-lens');
+
+    // Close when clicking the dim background
+    zoomOverlay.addEventListener('click', (e) => {
+        if (e.target === zoomOverlay) {
+            hideZoomOverlay();
+        }
+    });
+
+    // Close with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && zoomOverlay.classList.contains('is-visible')) {
+            hideZoomOverlay();
+        }
+    });
+
+    // Lens interactions
+    zoomOverlayImg.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isLensActive = true;
+        zoomOverlayLens.classList.add('is-active');
+        updateLensPosition(e);
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!zoomOverlay) return;
+        isLensActive = false;
+        zoomOverlayLens.classList.remove('is-active');
+        zoomOverlayImg.classList.remove('zoom-active');
+    });
+
+    zoomOverlay.addEventListener('mousemove', (e) => {
+        if (!isLensActive) return;
+        updateLensPosition(e);
+    });
+}
+
+function showZoomOverlayFromImage(sourceImg) {
+    ensureZoomOverlay();
+    if (!zoomOverlay || !zoomOverlayImg) return;
+
+    zoomOverlayImg.src = sourceImg.src;
+    zoomOverlayImg.classList.remove('zoom-active');
+    zoomOverlay.classList.add('is-visible');
+}
+
+function hideZoomOverlay() {
+    if (!zoomOverlay) return;
+    zoomOverlay.classList.remove('is-visible');
+    if (zoomOverlayImg) {
+        zoomOverlayImg.classList.remove('zoom-active');
+    }
+    if (zoomOverlayLens) {
+        zoomOverlayLens.classList.remove('is-active');
+    }
+    isLensActive = false;
+}
+
+function updateLensPosition(event) {
+    if (!zoomOverlayImg || !zoomOverlayLens) return;
+
+    const rect = zoomOverlayImg.getBoundingClientRect();
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+
+    // Clamp within image bounds
+    x = Math.max(0, Math.min(rect.width, x));
+    y = Math.max(0, Math.min(rect.height, y));
+
+    // Position the lens
+    zoomOverlayLens.style.left = `${x}px`;
+    zoomOverlayLens.style.top = `${y}px`;
+
+    // Update zoom origin based on cursor position
+    const percentX = (x / rect.width) * 100;
+    const percentY = (y / rect.height) * 100;
+
+    zoomOverlayImg.style.setProperty('--zoom-x', `${percentX}%`);
+    zoomOverlayImg.style.setProperty('--zoom-y', `${percentY}%`);
+    zoomOverlayImg.classList.add('zoom-active');
+}
+
+function initProjectImageZoom() {
+    if (!appContainer) return;
+
+    const images = appContainer.querySelectorAll('.project-image img');
+    if (!images.length) return;
+
+    ensureZoomOverlay();
+
+    images.forEach((img) => {
+        if (img.dataset.zoomBound === 'true') return;
+        img.dataset.zoomBound = 'true';
+
+        img.style.cursor = 'zoom-in';
+
+        img.addEventListener('click', (e) => {
+            // Use Ctrl + Click to mimic Zen Browser's "At a Glance" behavior
+            if (!e.ctrlKey) return;
+            e.preventDefault();
+            showZoomOverlayFromImage(img);
+        });
+    });
+}
+
 // Typewriter Utility
 function typeWriter(element, text, speed = 20, callback) {
     let i = 0;
@@ -162,75 +301,55 @@ function typeWriter(element, text, speed = 20, callback) {
     type();
 }
 
-// Home Animation Sequence
-function animateHome() {
-    const nameElement = document.querySelector('.terminal-name');
+// Linux Kernel Boot Style Animation
+function animateHomeKernel() {
+    const nameTextElement = document.querySelector('.name-text');
     const loadingLines = document.querySelectorAll('.loading-line');
-    const bioText = document.querySelector('.bio-text');
+    const bioSection = document.querySelector('.bio-section');
+    const navSection = document.querySelector('.navigation-section');
 
-    if (!nameElement || !bioText) return;
+    if (!nameTextElement) return;
 
-    // 1. Prepare elements (hide content initially)
-
-    // Handle Name: Keep the prompt, type the rest
-    const namePrompt = nameElement.querySelector('.cursor-prompt');
-    const fullNametext = nameElement.childNodes[nameElement.childNodes.length - 1].textContent.trim();
-    nameElement.childNodes[nameElement.childNodes.length - 1].textContent = '';
-
-    // Hide the prompt cursor while typing the name
-    if (namePrompt) namePrompt.classList.add('cursor-hidden');
-
-    // Handle Loading Lines
-    loadingLines.forEach(line => {
-        line.style.opacity = '0';
-    });
-
-    // Handle Bio
-    const bioPrompt = bioText.querySelector('.root-prompt');
-    let fullBioText = '';
-    if (bioText.lastChild && bioText.lastChild.nodeType === 3) {
-        fullBioText = bioText.lastChild.textContent.trim();
-        bioText.lastChild.textContent = '';
+    // Step 1: Type name (instant typewriter effect)
+    const fullName = 'Fabrizio Pellino';
+    let nameIndex = 0;
+    
+    function typeName() {
+        if (nameIndex < fullName.length) {
+            nameTextElement.textContent += fullName.charAt(nameIndex);
+            nameIndex++;
+            setTimeout(typeName, 30);
+        } else {
+            // Step 2: After name, wait 400ms then show loading lines
+            setTimeout(showLoadingLines, 400);
+        }
     }
-
-    // 2. Start Animations Concurrently
-
-    // Animation A: Type Name
-    const nameSpan = document.createElement('span');
-    nameElement.appendChild(nameSpan);
-    typeWriter(nameSpan, fullNametext, 30, () => {
-        // Optional: restore prompt cursor or keep it on name?
-        // We let the cursor disappear as focus moves to other lines
-    });
-
-    // Animation B: Reveal Loading Lines (Staggered)
-    loadingLines.forEach((line, index) => {
+    
+    function showLoadingLines() {
+        // Show each loading line with 200ms delay between them (NO typewriter animation)
+        loadingLines.forEach((line, index) => {
+            setTimeout(() => {
+                line.style.opacity = '1';
+            }, index * 200);
+        });
+        
+        // After all loading lines, show bio section
+        setTimeout(showBioSection, loadingLines.length * 200 + 200);
+    }
+    
+    function showBioSection() {
+        if (bioSection) {
+            bioSection.style.opacity = '1';
+        }
+        
+        // Show navigation section shortly after
         setTimeout(() => {
-            line.style.opacity = '1';
-            const textSpan = line.querySelector('.loading-text');
-            if (textSpan) {
-                const originalText = textSpan.textContent;
-                typeWriter(textSpan, originalText, 10);
+            if (navSection) {
+                navSection.style.opacity = '1';
             }
-        }, 200 + (index * 400));
-    });
-
-    // Animation C: Type Bio (Starts after a short delay)
-    setTimeout(() => {
-        const bioContentSpan = document.createElement('span');
-        bioText.appendChild(bioContentSpan);
-        typeWriter(bioContentSpan, fullBioText, 15);
-    }, 800);
-}
-
-// Update loadPage to trigger animation
-const originalLoadPage = loadPage;
-loadPage = async function (addToHistory = true) {
-    await originalLoadPage(addToHistory);
-    let hash = window.location.hash.replace('#', '');
-    if (!hash) hash = 'home';
-
-    if (hash === 'home') {
-        animateHome();
+        }, 300);
     }
-};
+    
+    // Start the animation
+    typeName();
+}

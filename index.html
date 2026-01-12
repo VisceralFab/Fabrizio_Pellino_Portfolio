@@ -1,61 +1,46 @@
-<!DOCTYPE html>
-<html lang="it">
+<!-- Home Section -->
+<section id="home" class="section active">
+    <!-- Name Section -->
+    <h1 class="terminal-name">
+        <span class="cursor-prompt">>_</span> <span class="name-text"></span>
+    </h1>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Fabrizio Pellino - UI-UX Designer Portfolio">
-    <title>Fabrizio Pellino | UI-UX Designer</title>
-    <link rel="stylesheet" href="assets/css/main.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
-</head>
-
-<body>
-    <div class="background-glow"></div>
-
-    <div class="terminal-window">
-        <!-- Terminal Header -->
-        <div class="terminal-header">
-            <div class="terminal-buttons">
-                <span class="btn-close"></span>
-                <span class="btn-minimize"></span>
-                <span class="btn-maximize"></span>
-            </div>
-            <div class="terminal-title">
-                Fabrizio_Pellino@portfolio:~/home
-            </div>
-            <div class="terminal-session">bash:~-login</div>
+    <!-- Loading Messages -->
+    <div class="loading-messages">
+        <div class="loading-line" style="opacity: 0;">
+            <span class="status-ok">[  OK  ]</span>
+            <span class="loading-text">Loading core modules...</span>
         </div>
-
-        <!-- Navigation Bar -->
-        <div class="terminal-navbar">
-            <button class="nav-arrow" id="nav-back" title="Back" disabled>
-                <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <button class="nav-arrow" id="nav-forward" title="Forward" disabled>
-                <i class="fa-solid fa-arrow-right"></i>
-            </button>
-            <button class="nav-arrow" id="nav-refresh" title="Refresh">
-                <i class="fa-solid fa-rotate-right"></i>
-            </button>
-            <div class="nav-address-bar">
-                <input type="text" class="address-input" id="address-input" spellcheck="false" value="~/home">
-            </div>
+        <div class="loading-line" style="opacity: 0;">
+            <span class="status-ok">[  OK  ]</span>
+            <span class="loading-text">Initializing UI Interface...</span>
         </div>
-
-        <!-- Terminal Body -->
-        <div class="terminal-body" id="app-container">
-            <!-- Content will be loaded dynamically -->
-            <div class="loading-messages">
-                <div class="loading-line">
-                    <span class="loading-text">Booting system...</span>
-                </div>
-            </div>
+        <div class="loading-line" style="opacity: 0;">
+            <span class="status-ok">[  OK  ]</span>
+            <span class="loading-text">Mounting projects database...</span>
         </div>
     </div>
 
-    <script src="assets/js/app.js"></script>
-</body>
+    <!-- Bio Section -->
+    <div class="bio-section" style="opacity: 0;">
+        <div class="bio-prompt-line">
+            <span class="user-host">VisceralFab@OutOfTune</span>
+            <span class="path"> [~/home]</span>
+            <span class="branch"> (master)</span>
+        </div>
+        <div class="current-file">[~/assets/html/home.html]</div>
+        <p class="bio-text">
+            <span class="prompt-symbol">$</span> UI-UX Designer with a background of product,
+            usability and visual.
+        </p>
+    </div>
 
-</html>
+    <!-- Navigation -->
+    <div class="navigation-section" style="opacity: 0;">
+        <p class="index-label">index_portfolio:</p>
+        <div class="nav-buttons">
+            <a href="#about" class="nav-btn">About me</a>
+            <a href="#projects" class="nav-btn">Projects</a>
+        </div>
+    </div>
+</section>
