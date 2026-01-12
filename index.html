@@ -56,6 +56,23 @@
     </div>
 
     <script src="assets/js/app.js"></script>
+
+    <!-- Background audio + lightweight controls -->
+    <audio id="siteAudio" preload="auto" loop playsinline>
+        <source src="assets/media/bgm.flac" type="audio/flac">
+        <source src="assets/media/bgm.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="musicControl" aria-label="Background music control" title="Background music">
+        <button id="musicToggle" class="music-toggle" title="Toggle background music" aria-pressed="false">
+            <i class="fa-solid fa-play" aria-hidden="true"></i>
+            <span class="sr-only">Play background music</span>
+        </button>
+        <input id="musicVolume" class="music-volume" type="range" min="0" max="1" step="0.01" aria-label="Music volume">
+    </div>
+
+    <script src="assets/js/audio.js"></script>
 </body>
 
 </html>
