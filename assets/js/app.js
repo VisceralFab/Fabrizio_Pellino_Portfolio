@@ -45,7 +45,7 @@ async function loadPage(addToHistory = true) {
 
     // Determine file to load
     const fileName = hash + '.html';
-    const filePath = '/assets/html/' + fileName;
+    const filePath = 'assets/html/' + fileName;
 
     try {
         const response = await fetch(filePath);
@@ -193,24 +193,30 @@ function ensureZoomOverlay() {
         }
     });
 
-    // Lens interactions
+    // Lens interactions - zoom on mousemove, lens on mousedown
+    zoomOverlayImg.addEventListener('mousemove', (e) => {
+        updateLensPosition(e);
+    });
+
     zoomOverlayImg.addEventListener('mousedown', (e) => {
         e.preventDefault();
         isLensActive = true;
         zoomOverlayLens.classList.add('is-active');
-        updateLensPosition(e);
+        zoomOverlayImg.classList.add('lens-active');
     });
 
     window.addEventListener('mouseup', () => {
-        if (!zoomOverlay) return;
         isLensActive = false;
         zoomOverlayLens.classList.remove('is-active');
-        zoomOverlayImg.classList.remove('zoom-active');
+        zoomOverlayImg.classList.remove('lens-active');
     });
 
-    zoomOverlay.addEventListener('mousemove', (e) => {
-        if (!isLensActive) return;
-        updateLensPosition(e);
+
+    zoomOverlayImg.addEventListener('mouseleave', () => {
+        if (!zoomOverlay) return;
+        zoomOverlayImg.classList.remove('zoom-active');
+        zoomOverlayLens.classList.remove('is-active');
+        isLensActive = false;
     });
 }
 
@@ -236,28 +242,49 @@ function hideZoomOverlay() {
 }
 
 function updateLensPosition(event) {
-    if (!zoomOverlayImg || !zoomOverlayLens) return;
+    if (!zoomOverlayImg || !zoomOverlayLens || !isLensActive) return;
 
-    const rect = zoomOverlayImg.getBoundingClientRect();
+    const img = zoomOverlayImg;
+    const rect = img.getBoundingClientRect();
+
+    // Mouse position relative to image
     let x = event.clientX - rect.left;
     let y = event.clientY - rect.top;
 
-    // Clamp within image bounds
+    // Clamp
     x = Math.max(0, Math.min(rect.width, x));
     y = Math.max(0, Math.min(rect.height, y));
 
-    // Position the lens
-    zoomOverlayLens.style.left = `${x}px`;
-    zoomOverlayLens.style.top = `${y}px`;
+    // Move lens
+    zoomOverlayLens.style.left = `${event.clientX}px`;
+    zoomOverlayLens.style.top = `${event.clientY}px`;
 
-    // Update zoom origin based on cursor position
-    const percentX = (x / rect.width) * 100;
-    const percentY = (y / rect.height) * 100;
+    // Scale ratios
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
 
-    zoomOverlayImg.style.setProperty('--zoom-x', `${percentX}%`);
-    zoomOverlayImg.style.setProperty('--zoom-y', `${percentY}%`);
-    zoomOverlayImg.classList.add('zoom-active');
+    // Real pixel position in original image
+    const realX = x * scaleX;
+    const realY = y * scaleY;
+
+    const zoom = 2.4; // magnification level
+
+    // Apply lens background
+    zoomOverlayLens.style.backgroundImage = `url(${img.src})`;
+    zoomOverlayLens.style.backgroundSize = `
+        ${img.naturalWidth * zoom}px
+        ${img.naturalHeight * zoom}px
+    `;
+
+    const lensSize = zoomOverlayLens.offsetWidth / 2;
+
+    zoomOverlayLens.style.backgroundPosition = `
+        ${-(realX * zoom) + lensSize}px
+        ${-(realY * zoom) + lensSize}px
+    `;
 }
+
+
 
 function initProjectImageZoom() {
     if (!appContainer) return;
@@ -313,7 +340,7 @@ function animateHomeKernel() {
     // Step 1: Type name (instant typewriter effect)
     const fullName = 'Fabrizio Pellino';
     let nameIndex = 0;
-    
+
     function typeName() {
         if (nameIndex < fullName.length) {
             nameTextElement.textContent += fullName.charAt(nameIndex);
@@ -324,24 +351,24 @@ function animateHomeKernel() {
             setTimeout(showLoadingLines, 400);
         }
     }
-    
+
     function showLoadingLines() {
-        // Show each loading line with 200ms delay between them (NO typewriter animation)
+        // Show each loading line with 400ms delay between them (NO typewriter animation)
         loadingLines.forEach((line, index) => {
             setTimeout(() => {
                 line.style.opacity = '1';
-            }, index * 200);
+            }, index * 400);
         });
-        
+
         // After all loading lines, show bio section
-        setTimeout(showBioSection, loadingLines.length * 200 + 200);
+        setTimeout(showBioSection, loadingLines.length * 400 + 400);
     }
-    
+
     function showBioSection() {
         if (bioSection) {
             bioSection.style.opacity = '1';
         }
-        
+
         // Show navigation section shortly after
         setTimeout(() => {
             if (navSection) {
@@ -349,7 +376,7 @@ function animateHomeKernel() {
             }
         }, 300);
     }
-    
+
     // Start the animation
     typeName();
 }
