@@ -329,10 +329,12 @@ function typeWriter(element, text, speed = 20, callback) {
 }
 
 // Linux Kernel Boot Style Animation
+// Linux Kernel Boot Style Animation
 function animateHomeKernel() {
     const nameTextElement = document.querySelector('.name-text');
     const loadingLines = document.querySelectorAll('.loading-line');
     const bioSection = document.querySelector('.bio-section');
+    const descriptionElement = document.querySelector('.description-line .description');
     const navSection = document.querySelector('.navigation-section');
 
     if (!nameTextElement) return;
@@ -348,20 +350,33 @@ function animateHomeKernel() {
             setTimeout(typeName, 30);
         } else {
             // Step 2: After name, wait 400ms then show loading lines
-            setTimeout(showLoadingLines, 400);
+            setTimeout(processLoadingLines, 400);
         }
     }
 
-    function showLoadingLines() {
-        // Show each loading line with 400ms delay between them (NO typewriter animation)
-        loadingLines.forEach((line, index) => {
+    function processLoadingLines() {
+        let lineDelay = 0;
+        const lineInterval = 600; // Time between each line starting
+
+        loadingLines.forEach((line) => {
+            const statusOk = line.querySelector('.status-ok');
+
+            // 1. Show the line (text visible, status hidden)
             setTimeout(() => {
                 line.style.opacity = '1';
-            }, index * 400);
+
+                // 2. Show [ OK ] shortly after text appears
+                setTimeout(() => {
+                    if (statusOk) statusOk.style.opacity = '1';
+                }, 400);
+
+            }, lineDelay);
+
+            lineDelay += lineInterval;
         });
 
-        // After all loading lines, show bio section
-        setTimeout(showBioSection, loadingLines.length * 400 + 400);
+        // After all loading lines are done (approx), show bio section
+        setTimeout(showBioSection, lineDelay + 400);
     }
 
     function showBioSection() {
@@ -369,12 +384,53 @@ function animateHomeKernel() {
             bioSection.style.opacity = '1';
         }
 
-        // Show navigation section shortly after
-        setTimeout(() => {
-            if (navSection) {
-                navSection.style.opacity = '1';
+        if (descriptionElement) {
+            // Hardcoded typewriter logic for the specific text to handle the <br>
+            // " UI-UX Designer with a background" + <br> + "of product, usability and visual."
+            const line1 = " UI-UX Designer with a background";
+            const line2 = "of product, usability and visual.";
+
+            descriptionElement.innerHTML = ''; // Clear text
+            descriptionElement.classList.add('typing-cursor');
+
+            let i = 0;
+            function typeLine1() {
+                if (i < line1.length) {
+                    descriptionElement.innerHTML += line1.charAt(i);
+                    i++;
+                    setTimeout(typeLine1, 20);
+                } else {
+                    // Line 1 done, add BR
+                    descriptionElement.innerHTML += '<br>';
+                    // Start Line 2
+                    setTimeout(() => {
+                        let j = 0;
+                        function typeLine2() {
+                            if (j < line2.length) {
+                                descriptionElement.innerHTML += line2.charAt(j);
+                                j++;
+                                setTimeout(typeLine2, 20);
+                            } else {
+                                descriptionElement.classList.remove('typing-cursor');
+                                // Show navigation after typing is done
+                                setTimeout(showNav, 200);
+                            }
+                        }
+                        typeLine2();
+                    }, 100);
+                }
             }
-        }, 300);
+            typeLine1();
+        } else {
+            // Fallback if element missing
+            setTimeout(showNav, 300);
+        }
+    }
+
+    function showNav() {
+        if (navSection) {
+            navSection.style.opacity = '1';
+        }
     }
 
     // Start the animation
