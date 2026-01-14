@@ -22,9 +22,10 @@
     background: rgba(0, 0, 0, 0.30);
     color: #fff;
     opacity: 0.6;
-    transition: opacity 0.18s ease, transform 0.12s ease, background 0.18s;
+    transition: opacity 0.18s ease, transform 0.12s ease, background 0.18s, border-color 0.3s, box-shadow 0.3s;
     backdrop-filter: blur(6px) saturate(120%);
     box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    border: 1px solid transparent; /* Prepare for border transition */
 }
 
 #musicControl:focus-within,
@@ -32,6 +33,12 @@
     opacity: 1;
     transform: translateX(-50%) translateY(-2px);
     background: rgba(0, 0, 0, 0.45);
+    /* Glow effect similar to nav-btn */
+    border-color: rgba(0, 180, 180, 0.6);
+    color: #00d4d4;
+    box-shadow:
+        0 0 20px rgba(0, 180, 180, 0.15),
+        inset 0 0 20px rgba(0, 180, 180, 0.05);
 }
 
 .music-toggle {
@@ -47,6 +54,7 @@
     cursor: pointer;
     color: inherit;
     padding: 0;
+    transition: all 0.2s ease;
 }
 
 .music-toggle:focus {
@@ -63,10 +71,30 @@
     background: transparent;
 }
 
+/* Percentage display */
+.music-percent {
+    font-family: 'Fira Code', monospace;
+    font-size: 12px;
+    width: 0;
+    opacity: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width 0.18s ease, opacity 0.18s ease;
+    color: #00d4d4;
+    font-weight: 500;
+}
+
 #musicControl:hover .music-volume,
 #musicControl:focus-within .music-volume {
     width: 96px;
     opacity: 1;
+}
+
+#musicControl:hover .music-percent,
+#musicControl:focus-within .music-percent {
+    width: 32px; /* Sufficient for "100%" */
+    opacity: 1;
+    margin-right: 8px; /* Add some spacing on the right when visible */
 }
 
 @media (prefers-color-scheme: light) {
