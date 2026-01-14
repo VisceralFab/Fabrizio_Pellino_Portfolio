@@ -1,0 +1,25 @@
+/* Initial States for Animations */
+.profile-photo,
+.profile-name,
+.profile-detail,
+.contact-item,
+.section-label,
+.about-paragraph,
+.skills-panel,
+.skill-item {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* Helper class for visible state */
+.fade-in-visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+.skill-item {
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Typing Cursor Styles are reused from home.css / global */

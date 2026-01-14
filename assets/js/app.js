@@ -62,6 +62,8 @@ async function loadPage(addToHistory = true) {
         // Trigger home animation if on home page
         if (hash === 'home') {
             setTimeout(() => animateHomeKernel(), 50);
+        } else if (hash === 'about') {
+            setTimeout(() => animateAbout(), 100);
         }
 
         // Initialize interactive behaviors for the newly injected content
@@ -435,4 +437,215 @@ function animateHomeKernel() {
 
     // Start the animation
     typeName();
+}
+
+// About Me Animation
+function animateAbout() {
+    // 1. Photo/Rect fade in
+    const photo = document.querySelector('.profile-photo');
+    if (photo) photo.classList.add('fade-in-visible');
+
+    // 2. UID types first
+    const uidElement = document.querySelector('.profile-name');
+    if (!uidElement) return;
+
+    // Store original text
+    const fullUidText = uidElement.innerText; // "UID: Fabrizio Pellino"
+    // But we need to keep the span structure? 
+    // The user wants "UID Fabrizio Pellino" animated. 
+    // Structure: <span class="uid-label">UID:</span> Fabrizio Pellino
+    // We can type the whole text content, or preserve HTML?
+    // Simplest approach: Type text content, then restore innerHTML or just keep text styled if possible.
+    // Given the span, we should reconstruct it or type into it. 
+    // Let's create a Helper to type into a container while preserving/creating structure if needed.
+    // Or simpler: Clear content, type "UID: " (wrap in span), then type "Fabrizio Pellino".
+
+    uidElement.innerHTML = '';
+    uidElement.style.opacity = '1';
+
+    const labelText = "UID: ";
+    const nameText = "Fabrizio Pellino";
+
+    let step = 0;
+    uidElement.classList.add('typing-cursor');
+
+    function typeUid() {
+        if (step < labelText.length) {
+            // Typing label
+            if (step === 0) {
+                const span = document.createElement('span');
+                span.className = 'uid-label';
+                uidElement.appendChild(span);
+            }
+            uidElement.querySelector('.uid-label').textContent += labelText.charAt(step);
+            step++;
+            setTimeout(typeUid, 30);
+        } else if (step < labelText.length + nameText.length) {
+            // Typing name
+            const charIndex = step - labelText.length;
+            if (charIndex === 0) {
+                const textNode = document.createTextNode('');
+                uidElement.appendChild(textNode);
+            }
+            uidElement.lastChild.textContent += nameText.charAt(charIndex);
+            step++;
+            setTimeout(typeUid, 30);
+        } else {
+            uidElement.classList.remove('typing-cursor');
+            // Phase 3: Simultaneous typing of sub-text
+            animateAboutDetails();
+        }
+    }
+
+    // Start UID typing after a small delay for photo
+    setTimeout(typeUid, 500);
+}
+
+function animateAboutDetails() {
+    // Phase 3: Details (Class, Degree) and Contact (Speaks, Email, Phone) simultaneous
+    // Select all these elements
+    const elementsToType = [
+        ...document.querySelectorAll('.profile-detail'), // Class and Degree
+        ...document.querySelectorAll('.contact-item')    // Speaks, Email, Phone
+    ];
+
+    elementsToType.forEach(el => {
+        // We need to preserve the <span> labels (Class:, Degree:, Speaks: etc)
+        // Similar logic to UID: Extract label and content, clear, then re-type.
+
+        const labelSpan = el.querySelector('span');
+        const labelText = labelSpan ? labelSpan.textContent : '';
+        const fullText = el.textContent; // "Class: Designer"
+        const contentText = fullText.substring(labelText.length).trim(); // "Designer" assuming simple structure
+        // Note: textContent strips HTML tags. 
+        // Let's grab the actual text node after the span.
+
+        // Reset element
+        el.innerHTML = '';
+        el.style.opacity = '1'; // Ensure visible
+
+        // Create label span
+        const newSpan = document.createElement('span');
+        newSpan.className = labelSpan ? labelSpan.className : '';
+        newSpan.textContent = ''; // Start empty
+        el.appendChild(newSpan);
+
+        // Create text node for content
+        const newText = document.createTextNode('');
+        el.appendChild(newText);
+
+        // Typewriter logic for this element
+        let i = 0;
+        const totalLen = labelText.length + (contentText ? contentText.length : 0) + 1; // +1 for space
+
+        // We will type the Label first, then the content
+
+        function typeChar() {
+            // Logic to type label then content
+            // Simple approach: Construct the full string and append char to correct node
+
+            // Re-constructing targets:
+            // 1. Label
+            // 2. Space? (Usually "Class: Designer" has " " in text node)
+            // 3. Content
+
+            // Let's simplify: Type labelText into span, then type contentText into textNode.
+
+            if (i < labelText.length) {
+                newSpan.textContent += labelText.charAt(i);
+                i++;
+                setTimeout(typeChar, 10);
+            } else {
+                // Space logic
+                if (i === labelText.length) {
+                    newText.textContent += ' '; // Add space
+                    i++;
+                    setTimeout(typeChar, 10);
+                } else {
+                    const contentIndex = i - labelText.length - 1;
+                    if (contentIndex < contentText.length) {
+                        newText.textContent += contentText.charAt(contentIndex);
+                        i++;
+                        setTimeout(typeChar, 10); // Faster typing for details
+                    } else {
+                        // Done with this element
+                    }
+                }
+            }
+        }
+
+        typeChar();
+    });
+
+    // Trigger Phase 4 (Info sections) shortly after starting details
+    // "Info_about_me" and description appear after details start? 
+    // User said: "Per quanto riguarda info_about_me ... voglio che sia animata in typing dopo le animazioni descritte in precedenza."
+    // So we wait for Phase 3 to finish? Or start it sequentially?
+    // "le scritte sotto siano animate in simultanea"
+    // "info_about_me ... dopo"
+
+    // Estimate time for longest detail ~ 50 chars * 10ms = 500ms. Let's wait 800ms.
+    setTimeout(animateInfoSections, 1500);
+}
+
+function animateInfoSections() {
+    // Phase 4: info_about_me -> paragraphs
+    // Phase 5: info_skills -> paragraph
+
+    const contentDiv = document.querySelector('.about-text');
+    if (!contentDiv) return;
+
+    const children = Array.from(contentDiv.children); // h3, p, p, p, h3, p...
+
+    // We need to animate them sequentially.
+    let index = 0;
+
+    function processNext() {
+        if (index >= children.length) {
+            // Done with info text.
+            // Phase 6: Skills Panel fade in
+            setTimeout(animateSkillsPanel, 500);
+            return;
+        }
+
+        const el = children[index];
+        const text = el.textContent.trim();
+
+        // Reset element
+        el.textContent = '';
+        el.style.opacity = '1';
+        el.classList.add('typing-cursor');
+
+        let charIdx = 0;
+        function type() {
+            if (charIdx < text.length) {
+                el.textContent += text.charAt(charIdx);
+                charIdx++;
+                setTimeout(type, 5); // Fast typing for long text
+            } else {
+                el.classList.remove('typing-cursor');
+                index++;
+                processNext(); // Start next paragraph immediately after
+            }
+        }
+        type();
+    }
+
+    processNext();
+}
+
+function animateSkillsPanel() {
+    // Phase 6: Skills layout fade in
+    const panel = document.querySelector('.skills-panel');
+    if (!panel) return;
+
+    panel.classList.add('fade-in-visible');
+
+    // Phase 7: Icons stagger 1-2-3
+    const icons = panel.querySelectorAll('.skill-item');
+    icons.forEach((icon, i) => {
+        setTimeout(() => {
+            icon.classList.add('fade-in-visible');
+        }, i * 150); // 150ms delay between each
+    });
 }

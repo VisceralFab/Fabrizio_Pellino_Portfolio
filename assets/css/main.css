@@ -6,6 +6,7 @@
 @import 'components/skills.css';
 @import 'components/projects.css';
 @import 'sections/home.css';
+@import 'sections/about.css';
 
 /* Minimal bottom-centered music control (non-invasive) */
 #musicControl {
@@ -24,8 +25,9 @@
     opacity: 0.6;
     transition: opacity 0.18s ease, transform 0.12s ease, background 0.18s, border-color 0.3s, box-shadow 0.3s;
     backdrop-filter: blur(6px) saturate(120%);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
-    border: 1px solid transparent; /* Prepare for border transition */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+    border: 1px solid transparent;
+    /* Prepare for border transition */
 }
 
 #musicControl:focus-within,
@@ -42,8 +44,8 @@
 }
 
 .music-toggle {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     width: 38px;
     height: 38px;
     border-radius: 50%;
@@ -58,7 +60,7 @@
 }
 
 .music-toggle:focus {
-    outline: 2px solid rgba(255,255,255,0.12);
+    outline: 2px solid rgba(255, 255, 255, 0.12);
     outline-offset: 2px;
 }
 
@@ -92,12 +94,23 @@
 
 #musicControl:hover .music-percent,
 #musicControl:focus-within .music-percent {
-    width: 32px; /* Sufficient for "100%" */
+    width: 32px;
+    /* Sufficient for "100%" */
     opacity: 1;
-    margin-right: 8px; /* Add some spacing on the right when visible */
+    margin-right: 8px;
+    /* Add some spacing on the right when visible */
 }
 
 @media (prefers-color-scheme: light) {
-    #musicControl { background: rgba(255,255,255,0.85); color: #111; opacity: 0.9 }
-    .music-toggle { background: rgba(0,0,0,0.04); color: inherit; border: 1px solid rgba(0,0,0,0.04); }
+    #musicControl {
+        background: rgba(255, 255, 255, 0.85);
+        color: #111;
+        opacity: 0.9
+    }
+
+    .music-toggle {
+        background: rgba(0, 0, 0, 0.04);
+        color: inherit;
+        border: 1px solid rgba(0, 0, 0, 0.04);
+    }
 }
