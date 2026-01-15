@@ -171,7 +171,7 @@ function ensureZoomOverlay() {
             <img class="image-zoom-img" alt="Zoomed project image">
             <div class="image-zoom-lens"></div>
             <div class="image-zoom-hint">
-                Ctrl + Click on any project image to open. Hold left click to inspect details. Press Esc or click outside to close.
+                Hold left click to inspect details. Press Esc or click outside to close.
             </div>
         </div>
     `;
@@ -303,8 +303,7 @@ function initProjectImageZoom() {
         img.style.cursor = 'zoom-in';
 
         img.addEventListener('click', (e) => {
-            // Use Ctrl + Click to mimic Zen Browser's "At a Glance" behavior
-            if (!e.ctrlKey) return;
+            // Direct click opens "At a Glance" behavior (previously required Ctrl + Click)
             e.preventDefault();
             showZoomOverlayFromImage(img);
         });
