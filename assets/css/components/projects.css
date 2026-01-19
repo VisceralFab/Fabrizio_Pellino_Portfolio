@@ -87,6 +87,107 @@
     display: block;
 }
 
+/* IMAGE ZOOM OVERLAY ("At a Glance") */
+.image-zoom-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease-out;
+    backdrop-filter: blur(4px);
+}
+
+.image-zoom-overlay.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.image-zoom-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 85vh;
+    border-radius: 16px;
+    overflow: hidden;
+    background: radial-gradient(circle at top left, #111826 0%, #05070b 55%, #020308 100%);
+    border: 1px solid rgba(0, 212, 212, 0.35);
+    box-shadow:
+        0 0 40px rgba(0, 0, 0, 0.7),
+        0 0 60px rgba(0, 212, 212, 0.12);
+}
+
+.image-zoom-img {
+    display: block;
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    transform-origin: center center;
+    transform: scale(1);
+    transition: transform 0.08s ease-out;
+}
+
+.image-zoom-img.zoom-active {
+    transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+    transform: scale(2.4);
+}
+
+.image-zoom-lens {
+    position: fixed;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    border: 2px solid #00d4d4;
+
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+
+    background-image: url('');
+    background-repeat: no-repeat;
+    background-size: 240%;
+}
+
+
+.image-zoom-lens.is-active {
+    opacity: 1;
+}
+
+.image-zoom-hint {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+
+    font-size: 12px;
+    color: #e8faff;
+    font-family: 'Fira Code', monospace;
+
+    background: rgba(5, 10, 20, 0.95);
+    padding: 10px 14px;
+    border-radius: 8px;
+
+    border: 1px solid rgba(0, 212, 212, 0.5);
+    backdrop-filter: blur(6px);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    box-shadow:
+        0 0 15px rgba(0, 212, 212, 0.35),
+        0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+
+.image-zoom-hint::before {
+    content: '+*+';
+    color: #00f6ff;
+    text-shadow: 0 0 8px rgba(0, 246, 255, 0.9);
+}
+
 .project-info-text {
     color: #ffffff;
     font-size: 14px;
@@ -169,5 +270,106 @@
 @media (max-width: 600px) {
     .projects-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Image Zoom Overlay - "At a Glance" Feature */
+.image-zoom-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    cursor: default;
+}
+
+.image-zoom-overlay.is-visible {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.image-zoom-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-zoom-img {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    cursor: crosshair;
+    transition: transform 0.1s ease;
+    border-radius: 8px;
+    box-shadow: 0 10px 50px rgba(0, 212, 212, 0.3);
+}
+
+.image-zoom-img.zoom-active {
+    transform: scale(2);
+    transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
+    cursor: none;
+}
+
+.image-zoom-lens {
+    position: fixed;
+    width: 150px;
+    height: 150px;
+    border: 3px solid #00d4d4;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 0 20px rgba(0, 212, 212, 0.5),
+                inset 0 0 20px rgba(0, 212, 212, 0.2);
+    background: radial-gradient(circle, rgba(0, 212, 212, 0.1) 0%, transparent 70%);
+}
+
+.image-zoom-lens.is-active {
+    opacity: 1;
+}
+
+.image-zoom-img.lens-active {
+    cursor: none;
+}
+
+
+.image-zoom-hint {
+    margin-top: 20px;
+    color: #00d4d4;
+    font-family: 'Fira Code', monospace;
+    font-size: 13px;
+    text-align: center;
+    padding: 10px 20px;
+    background: rgba(0, 212, 212, 0.1);
+    border: 1px solid rgba(0, 212, 212, 0.3);
+    border-radius: 6px;
+    max-width: 600px;
+}
+
+/* Project images cursor hint */
+.project-image img {
+    transition: all 0.3s ease;
+}
+
+.project-image img:hover {
+    box-shadow: 0 0 20px rgba(0, 212, 212, 0.3);
+    transform: scale(1.02);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }

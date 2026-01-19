@@ -2,7 +2,6 @@
 .cursor-prompt {
     color: #ffffff;
     font-weight: 400;
-    font-size: bold;
 }
 
 /* Cursor blink effect */
@@ -28,6 +27,10 @@
     gap: 15px;
 }
 
+.name-text {
+    display: inline;
+}
+
 /* Loading Messages */
 .loading-messages {
     margin-bottom: 30px;
@@ -39,24 +42,116 @@
     gap: 12px;
     margin-bottom: 6px;
     font-size: 14px;
+    transition: opacity 0.1s ease;
 }
 
 .status-ok {
     color: #00d4d4;
-    font-weight: 500;
+    /* Changed from #00ff00 to cyan */
+    font-weight: 600;
+    font-family: monospace;
+    min-width: 60px;
+    opacity: 0;
+    /* Hidden by default for animation */
+    transition: opacity 0.2s ease;
 }
 
 .loading-text {
-    color: #7a8a9a;
+    color: #e8eaed;
 }
 
-/* Responsive - Mobile */
+/* Bio Section - 2 Lines */
+.bio-section {
+    margin-bottom: 40px;
+    transition: opacity 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    /* Force left alignment to override profile.css */
+    align-items: flex-start;
+}
+
+.prompt-line {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 0;
+    white-space: nowrap;
+    display: block;
+    text-align: left;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.user-host {
+    color: #00d4d4;
+    font-weight: 600;
+}
+
+.path {
+    color: #bd93f9;
+    font-weight: 500;
+}
+
+.branch {
+    color: #ff79c6;
+    font-weight: 500;
+}
+
+.colon {
+    color: #e8eaed;
+}
+
+.arrow {
+    color: #00d4d4;
+    font-weight: 600;
+}
+
+.description-line {
+    font-size: 2.2rem;
+    /* Increased from 24px to match user request (almost 2.5rem) */
+    margin-top: 0;
+    display: block;
+    /* white-space: nowrap; Removed to allow line break */
+    padding-left: 0;
+    margin-left: 0;
+    text-align: left;
+}
+
+
+.description {
+    color: #e8eaed;
+}
+
+/* Navigation Section */
+.navigation-section {
+    margin-top: 40px;
+    transition: opacity 0.2s ease;
+}
+
+.index-label {
+    color: #6272a4;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
     .terminal-name {
         font-size: 1.5rem;
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
+    }
+
+    .prompt-line {
+        font-size: 13px;
+    }
+
+    .description-line {
+        font-size: 1.2rem;
+        /* Proportionally smaller but readable on mobile */
+        white-space: normal;
+        /* Allow wrapping on small screens if needed */
     }
 }
 

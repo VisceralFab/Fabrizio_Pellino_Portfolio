@@ -13,6 +13,12 @@ let navigationHistory = [];
 let historyIndex = -1;
 let isTraversingHistory = false;
 
+// Image zoom overlay elements
+let zoomOverlay = null;
+let zoomOverlayImg = null;
+let zoomOverlayLens = null;
+let isLensActive = false;
+
 // Simple Router
 async function loadPage(addToHistory = true) {
     let hash = window.location.hash.replace('#', '');
@@ -52,6 +58,16 @@ async function loadPage(addToHistory = true) {
         // Post-load logic
         updateUI(hash);
         updateNavButtons();
+
+        // Trigger home animation if on home page
+        if (hash === 'home') {
+            setTimeout(() => animateHomeKernel(), 50);
+        } else if (hash === 'about') {
+            setTimeout(() => animateAbout(), 100);
+        }
+
+        // Initialize interactive behaviors for the newly injected content
+        initProjectImageZoom();
     } catch (error) {
         console.error('Failed to load page:', error);
         appContainer.innerHTML = `<p style="color: #ff5f56; font-family: 'Fira Code', monospace;">Error loading module: ${hash}. System halted.</p>`;
@@ -143,6 +159,157 @@ addressInput.addEventListener('keydown', (e) => {
 window.addEventListener('hashchange', () => loadPage(true));
 document.addEventListener('DOMContentLoaded', () => loadPage(true));
 
+// ----- Image Zoom ("At a Glance") -----
+
+function ensureZoomOverlay() {
+    if (zoomOverlay) return;
+
+    zoomOverlay = document.createElement('div');
+    zoomOverlay.className = 'image-zoom-overlay';
+    zoomOverlay.innerHTML = `
+        <div class="image-zoom-content">
+            <img class="image-zoom-img" alt="Zoomed project image">
+            <div class="image-zoom-lens"></div>
+            <div class="image-zoom-hint">
+                Hold left click to inspect details. Press Esc or click outside to close.
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(zoomOverlay);
+
+    zoomOverlayImg = zoomOverlay.querySelector('.image-zoom-img');
+    zoomOverlayLens = zoomOverlay.querySelector('.image-zoom-lens');
+
+    // Close when clicking the dim background
+    zoomOverlay.addEventListener('click', (e) => {
+        if (e.target === zoomOverlay) {
+            hideZoomOverlay();
+        }
+    });
+
+    // Close with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && zoomOverlay.classList.contains('is-visible')) {
+            hideZoomOverlay();
+        }
+    });
+
+    // Lens interactions - zoom on mousemove, lens on mousedown
+    zoomOverlayImg.addEventListener('mousemove', (e) => {
+        updateLensPosition(e);
+    });
+
+    zoomOverlayImg.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        isLensActive = true;
+        zoomOverlayLens.classList.add('is-active');
+        zoomOverlayImg.classList.add('lens-active');
+    });
+
+    window.addEventListener('mouseup', () => {
+        isLensActive = false;
+        zoomOverlayLens.classList.remove('is-active');
+        zoomOverlayImg.classList.remove('lens-active');
+    });
+
+
+    zoomOverlayImg.addEventListener('mouseleave', () => {
+        if (!zoomOverlay) return;
+        zoomOverlayImg.classList.remove('zoom-active');
+        zoomOverlayLens.classList.remove('is-active');
+        isLensActive = false;
+    });
+}
+
+function showZoomOverlayFromImage(sourceImg) {
+    ensureZoomOverlay();
+    if (!zoomOverlay || !zoomOverlayImg) return;
+
+    zoomOverlayImg.src = sourceImg.src;
+    zoomOverlayImg.classList.remove('zoom-active');
+    zoomOverlay.classList.add('is-visible');
+}
+
+function hideZoomOverlay() {
+    if (!zoomOverlay) return;
+    zoomOverlay.classList.remove('is-visible');
+    if (zoomOverlayImg) {
+        zoomOverlayImg.classList.remove('zoom-active');
+    }
+    if (zoomOverlayLens) {
+        zoomOverlayLens.classList.remove('is-active');
+    }
+    isLensActive = false;
+}
+
+function updateLensPosition(event) {
+    if (!zoomOverlayImg || !zoomOverlayLens || !isLensActive) return;
+
+    const img = zoomOverlayImg;
+    const rect = img.getBoundingClientRect();
+
+    // Mouse position relative to image
+    let x = event.clientX - rect.left;
+    let y = event.clientY - rect.top;
+
+    // Clamp
+    x = Math.max(0, Math.min(rect.width, x));
+    y = Math.max(0, Math.min(rect.height, y));
+
+    // Move lens
+    zoomOverlayLens.style.left = `${event.clientX}px`;
+    zoomOverlayLens.style.top = `${event.clientY}px`;
+
+    // Scale ratios
+    const scaleX = img.naturalWidth / rect.width;
+    const scaleY = img.naturalHeight / rect.height;
+
+    // Real pixel position in original image
+    const realX = x * scaleX;
+    const realY = y * scaleY;
+
+    const zoom = 2.4; // magnification level
+
+    // Apply lens background
+    zoomOverlayLens.style.backgroundImage = `url(${img.src})`;
+    zoomOverlayLens.style.backgroundSize = `
+        ${img.naturalWidth * zoom}px
+        ${img.naturalHeight * zoom}px
+    `;
+
+    const lensSize = zoomOverlayLens.offsetWidth / 2;
+
+    zoomOverlayLens.style.backgroundPosition = `
+        ${-(realX * zoom) + lensSize}px
+        ${-(realY * zoom) + lensSize}px
+    `;
+}
+
+
+
+function initProjectImageZoom() {
+    if (!appContainer) return;
+
+    const images = appContainer.querySelectorAll('.project-image img');
+    if (!images.length) return;
+
+    ensureZoomOverlay();
+
+    images.forEach((img) => {
+        if (img.dataset.zoomBound === 'true') return;
+        img.dataset.zoomBound = 'true';
+
+        img.style.cursor = 'zoom-in';
+
+        img.addEventListener('click', (e) => {
+            // Direct click opens "At a Glance" behavior (previously required Ctrl + Click)
+            e.preventDefault();
+            showZoomOverlayFromImage(img);
+        });
+    });
+}
+
 // Typewriter Utility
 function typeWriter(element, text, speed = 20, callback) {
     let i = 0;
@@ -162,75 +329,322 @@ function typeWriter(element, text, speed = 20, callback) {
     type();
 }
 
-// Home Animation Sequence
-function animateHome() {
-    const nameElement = document.querySelector('.terminal-name');
+// Linux Kernel Boot Style Animation
+// Linux Kernel Boot Style Animation
+function animateHomeKernel() {
+    const nameTextElement = document.querySelector('.name-text');
     const loadingLines = document.querySelectorAll('.loading-line');
-    const bioText = document.querySelector('.bio-text');
+    const bioSection = document.querySelector('.bio-section');
+    const descriptionElement = document.querySelector('.description-line .description');
+    const navSection = document.querySelector('.navigation-section');
 
-    if (!nameElement || !bioText) return;
+    if (!nameTextElement) return;
 
-    // 1. Prepare elements (hide content initially)
+    // Step 1: Type name (instant typewriter effect)
+    const fullName = 'Fabrizio Pellino';
+    let nameIndex = 0;
 
-    // Handle Name: Keep the prompt, type the rest
-    const namePrompt = nameElement.querySelector('.cursor-prompt');
-    const fullNametext = nameElement.childNodes[nameElement.childNodes.length - 1].textContent.trim();
-    nameElement.childNodes[nameElement.childNodes.length - 1].textContent = '';
-
-    // Hide the prompt cursor while typing the name
-    if (namePrompt) namePrompt.classList.add('cursor-hidden');
-
-    // Handle Loading Lines
-    loadingLines.forEach(line => {
-        line.style.opacity = '0';
-    });
-
-    // Handle Bio
-    const bioPrompt = bioText.querySelector('.root-prompt');
-    let fullBioText = '';
-    if (bioText.lastChild && bioText.lastChild.nodeType === 3) {
-        fullBioText = bioText.lastChild.textContent.trim();
-        bioText.lastChild.textContent = '';
+    function typeName() {
+        if (nameIndex < fullName.length) {
+            nameTextElement.textContent += fullName.charAt(nameIndex);
+            nameIndex++;
+            setTimeout(typeName, 30);
+        } else {
+            // Step 2: After name, wait 400ms then show loading lines
+            setTimeout(processLoadingLines, 400);
+        }
     }
 
-    // 2. Start Animations Concurrently
+    function processLoadingLines() {
+        let lineDelay = 0;
+        const lineInterval = 600; // Time between each line starting
 
-    // Animation A: Type Name
-    const nameSpan = document.createElement('span');
-    nameElement.appendChild(nameSpan);
-    typeWriter(nameSpan, fullNametext, 30, () => {
-        // Optional: restore prompt cursor or keep it on name?
-        // We let the cursor disappear as focus moves to other lines
-    });
+        loadingLines.forEach((line) => {
+            const statusOk = line.querySelector('.status-ok');
 
-    // Animation B: Reveal Loading Lines (Staggered)
-    loadingLines.forEach((line, index) => {
-        setTimeout(() => {
-            line.style.opacity = '1';
-            const textSpan = line.querySelector('.loading-text');
-            if (textSpan) {
-                const originalText = textSpan.textContent;
-                typeWriter(textSpan, originalText, 10);
+            // 1. Show the line (text visible, status hidden)
+            setTimeout(() => {
+                line.style.opacity = '1';
+
+                // 2. Show [ OK ] shortly after text appears
+                setTimeout(() => {
+                    if (statusOk) statusOk.style.opacity = '1';
+                }, 400);
+
+            }, lineDelay);
+
+            lineDelay += lineInterval;
+        });
+
+        // After all loading lines are done (approx), show bio section
+        setTimeout(showBioSection, lineDelay + 400);
+    }
+
+    function showBioSection() {
+        if (bioSection) {
+            bioSection.style.opacity = '1';
+        }
+
+        if (descriptionElement) {
+            // Hardcoded typewriter logic for the specific text to handle the <br>
+            // " UI-UX Designer with a background" + <br> + "of product, usability and visual."
+            const line1 = " UI-UX Designer with a background";
+            const line2 = "of product, usability and visual.";
+
+            descriptionElement.innerHTML = ''; // Clear text
+            descriptionElement.classList.add('typing-cursor');
+
+            let i = 0;
+            function typeLine1() {
+                if (i < line1.length) {
+                    descriptionElement.innerHTML += line1.charAt(i);
+                    i++;
+                    setTimeout(typeLine1, 20);
+                } else {
+                    // Line 1 done, add BR
+                    descriptionElement.innerHTML += '<br>';
+                    // Start Line 2
+                    setTimeout(() => {
+                        let j = 0;
+                        function typeLine2() {
+                            if (j < line2.length) {
+                                descriptionElement.innerHTML += line2.charAt(j);
+                                j++;
+                                setTimeout(typeLine2, 20);
+                            } else {
+                                descriptionElement.classList.remove('typing-cursor');
+                                // Show navigation after typing is done
+                                setTimeout(showNav, 200);
+                            }
+                        }
+                        typeLine2();
+                    }, 100);
+                }
             }
-        }, 200 + (index * 400));
-    });
+            typeLine1();
+        } else {
+            // Fallback if element missing
+            setTimeout(showNav, 300);
+        }
+    }
 
-    // Animation C: Type Bio (Starts after a short delay)
-    setTimeout(() => {
-        const bioContentSpan = document.createElement('span');
-        bioText.appendChild(bioContentSpan);
-        typeWriter(bioContentSpan, fullBioText, 15);
-    }, 800);
+    function showNav() {
+        if (navSection) {
+            navSection.style.opacity = '1';
+        }
+    }
+
+    // Start the animation
+    typeName();
 }
 
-// Update loadPage to trigger animation
-const originalLoadPage = loadPage;
-loadPage = async function (addToHistory = true) {
-    await originalLoadPage(addToHistory);
-    let hash = window.location.hash.replace('#', '');
-    if (!hash) hash = 'home';
+// About Me Animation
+function animateAbout() {
+    // 1. Photo/Rect fade in
+    const photo = document.querySelector('.profile-photo');
+    if (photo) photo.classList.add('fade-in-visible');
 
-    if (hash === 'home') {
-        animateHome();
+    // 2. UID types first
+    const uidElement = document.querySelector('.profile-name');
+    if (!uidElement) return;
+
+    // Store original text
+    const fullUidText = uidElement.innerText; // "UID: Fabrizio Pellino"
+    // But we need to keep the span structure? 
+    // The user wants "UID Fabrizio Pellino" animated. 
+    // Structure: <span class="uid-label">UID:</span> Fabrizio Pellino
+    // We can type the whole text content, or preserve HTML?
+    // Simplest approach: Type text content, then restore innerHTML or just keep text styled if possible.
+    // Given the span, we should reconstruct it or type into it. 
+    // Let's create a Helper to type into a container while preserving/creating structure if needed.
+    // Or simpler: Clear content, type "UID: " (wrap in span), then type "Fabrizio Pellino".
+
+    uidElement.innerHTML = '';
+    uidElement.style.opacity = '1';
+
+    const labelText = "UID: ";
+    const nameText = "Fabrizio Pellino";
+
+    let step = 0;
+    uidElement.classList.add('typing-cursor');
+
+    function typeUid() {
+        if (step < labelText.length) {
+            // Typing label
+            if (step === 0) {
+                const span = document.createElement('span');
+                span.className = 'uid-label';
+                uidElement.appendChild(span);
+            }
+            uidElement.querySelector('.uid-label').textContent += labelText.charAt(step);
+            step++;
+            setTimeout(typeUid, 30);
+        } else if (step < labelText.length + nameText.length) {
+            // Typing name
+            const charIndex = step - labelText.length;
+            if (charIndex === 0) {
+                const textNode = document.createTextNode('');
+                uidElement.appendChild(textNode);
+            }
+            uidElement.lastChild.textContent += nameText.charAt(charIndex);
+            step++;
+            setTimeout(typeUid, 30);
+        } else {
+            uidElement.classList.remove('typing-cursor');
+            // Phase 3: Simultaneous typing of sub-text
+            animateAboutDetails();
+        }
     }
-};
+
+    // Start UID typing after a small delay for photo
+    setTimeout(typeUid, 500);
+}
+
+function animateAboutDetails() {
+    // Phase 3: Details (Class, Degree) and Contact (Speaks, Email, Phone) simultaneous
+    // Select all these elements
+    const elementsToType = [
+        ...document.querySelectorAll('.profile-detail'), // Class and Degree
+        ...document.querySelectorAll('.contact-item')    // Speaks, Email, Phone
+    ];
+
+    elementsToType.forEach(el => {
+        // We need to preserve the <span> labels (Class:, Degree:, Speaks: etc)
+        // Similar logic to UID: Extract label and content, clear, then re-type.
+
+        const labelSpan = el.querySelector('span');
+        const labelText = labelSpan ? labelSpan.textContent : '';
+        const fullText = el.textContent; // "Class: Designer"
+        const contentText = fullText.substring(labelText.length).trim(); // "Designer" assuming simple structure
+        // Note: textContent strips HTML tags. 
+        // Let's grab the actual text node after the span.
+
+        // Reset element
+        el.innerHTML = '';
+        el.style.opacity = '1'; // Ensure visible
+
+        // Create label span
+        const newSpan = document.createElement('span');
+        newSpan.className = labelSpan ? labelSpan.className : '';
+        newSpan.textContent = ''; // Start empty
+        el.appendChild(newSpan);
+
+        // Create text node for content
+        const newText = document.createTextNode('');
+        el.appendChild(newText);
+
+        // Typewriter logic for this element
+        let i = 0;
+        const totalLen = labelText.length + (contentText ? contentText.length : 0) + 1; // +1 for space
+
+        // We will type the Label first, then the content
+
+        function typeChar() {
+            // Logic to type label then content
+            // Simple approach: Construct the full string and append char to correct node
+
+            // Re-constructing targets:
+            // 1. Label
+            // 2. Space? (Usually "Class: Designer" has " " in text node)
+            // 3. Content
+
+            // Let's simplify: Type labelText into span, then type contentText into textNode.
+
+            if (i < labelText.length) {
+                newSpan.textContent += labelText.charAt(i);
+                i++;
+                setTimeout(typeChar, 10);
+            } else {
+                // Space logic
+                if (i === labelText.length) {
+                    newText.textContent += ' '; // Add space
+                    i++;
+                    setTimeout(typeChar, 10);
+                } else {
+                    const contentIndex = i - labelText.length - 1;
+                    if (contentIndex < contentText.length) {
+                        newText.textContent += contentText.charAt(contentIndex);
+                        i++;
+                        setTimeout(typeChar, 10); // Faster typing for details
+                    } else {
+                        // Done with this element
+                    }
+                }
+            }
+        }
+
+        typeChar();
+    });
+
+    // Trigger Phase 4 (Info sections) shortly after starting details
+    // "Info_about_me" and description appear after details start? 
+    // User said: "Per quanto riguarda info_about_me ... voglio che sia animata in typing dopo le animazioni descritte in precedenza."
+    // So we wait for Phase 3 to finish? Or start it sequentially?
+    // "le scritte sotto siano animate in simultanea"
+    // "info_about_me ... dopo"
+
+    // Estimate time for longest detail ~ 50 chars * 10ms = 500ms. Let's wait 800ms.
+    setTimeout(animateInfoSections, 1500);
+}
+
+function animateInfoSections() {
+    // Phase 4: info_about_me -> paragraphs
+    // Phase 5: info_skills -> paragraph
+
+    const contentDiv = document.querySelector('.about-text');
+    if (!contentDiv) return;
+
+    const children = Array.from(contentDiv.children); // h3, p, p, p, h3, p...
+
+    // We need to animate them sequentially.
+    let index = 0;
+
+    function processNext() {
+        if (index >= children.length) {
+            // Done with info text.
+            // Phase 6: Skills Panel fade in
+            setTimeout(animateSkillsPanel, 500);
+            return;
+        }
+
+        const el = children[index];
+        const text = el.textContent.trim();
+
+        // Reset element
+        el.textContent = '';
+        el.style.opacity = '1';
+        el.classList.add('typing-cursor');
+
+        let charIdx = 0;
+        function type() {
+            if (charIdx < text.length) {
+                el.textContent += text.charAt(charIdx);
+                charIdx++;
+                setTimeout(type, 5); // Fast typing for long text
+            } else {
+                el.classList.remove('typing-cursor');
+                index++;
+                processNext(); // Start next paragraph immediately after
+            }
+        }
+        type();
+    }
+
+    processNext();
+}
+
+function animateSkillsPanel() {
+    // Phase 6: Skills layout fade in
+    const panel = document.querySelector('.skills-panel');
+    if (!panel) return;
+
+    panel.classList.add('fade-in-visible');
+
+    // Phase 7: Icons stagger 1-2-3
+    const icons = panel.querySelectorAll('.skill-item');
+    icons.forEach((icon, i) => {
+        setTimeout(() => {
+            icon.classList.add('fade-in-visible');
+        }, i * 150); // 150ms delay between each
+    });
+}
