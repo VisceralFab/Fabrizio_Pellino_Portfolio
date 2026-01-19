@@ -13,6 +13,11 @@
 
 <body>
     <div class="background-glow"></div>
+    <div class="scanlines"></div>
+    <div class="crt-flicker"></div>
+    <div class="crt-vignette"></div>
+    <div class="crt-noise"></div>
+    <div class="rgb-shift"></div>
 
     <div class="terminal-window">
         <!-- Terminal Header -->
@@ -40,17 +45,18 @@
                 <i class="fa-solid fa-rotate-right"></i>
             </button>
             <div class="nav-address-bar">
+                <div class="address-icon">
+                    <i class="fa-solid fa-folder"></i>
+                </div>
                 <input type="text" class="address-input" id="address-input" spellcheck="false" value="~/home">
             </div>
         </div>
 
         <!-- Terminal Body -->
-        <div class="terminal-body" id="app-container">
-            <!-- Content will be loaded dynamically -->
-            <div class="loading-messages">
-                <div class="loading-line">
-                    <span class="loading-text">Booting system...</span>
-                </div>
+        <div class="terminal-body">
+            <!-- App Container - Content loads here -->
+            <div id="app-container">
+                <!-- Content will be loaded dynamically -->
             </div>
         </div>
     </div>

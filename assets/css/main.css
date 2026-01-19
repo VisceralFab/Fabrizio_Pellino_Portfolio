@@ -1,5 +1,6 @@
 @import 'base.css';
 @import 'layout.css';
+@import 'scanlines.css';
 @import 'components/terminal.css';
 @import 'components/buttons.css';
 @import 'components/profile.css';

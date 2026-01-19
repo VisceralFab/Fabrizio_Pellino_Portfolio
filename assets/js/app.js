@@ -13,6 +13,9 @@ let navigationHistory = [];
 let historyIndex = -1;
 let isTraversingHistory = false;
 
+// Track visited pages to skip animations
+let visitedPages = new Set();
+
 // Image zoom overlay elements
 let zoomOverlay = null;
 let zoomOverlayImg = null;
@@ -59,15 +62,28 @@ async function loadPage(addToHistory = true) {
         updateUI(hash);
         updateNavButtons();
 
-        // Trigger home animation if on home page
-        if (hash === 'home') {
+        // Check if this page has been visited before
+        const isFirstVisit = !visitedPages.has(hash);
+        
+        // Mark page as visited
+        visitedPages.add(hash);
+
+        // Trigger animations only on first visit
+        if (hash === 'home' && isFirstVisit) {
             setTimeout(() => animateHomeKernel(), 50);
-        } else if (hash === 'about') {
+        } else if (hash === 'home' && !isFirstVisit) {
+            // Show home content instantly without animation
+            showHomeInstant();
+        } else if (hash === 'about' && isFirstVisit) {
             setTimeout(() => animateAbout(), 100);
+        } else if (hash === 'about' && !isFirstVisit) {
+            // Show about content instantly without animation
+            showAboutInstant();
         }
 
         // Initialize interactive behaviors for the newly injected content
         initProjectImageZoom();
+        initMediaSlider();
     } catch (error) {
         console.error('Failed to load page:', error);
         appContainer.innerHTML = `<p style="color: #ff5f56; font-family: 'Fira Code', monospace;">Error loading module: ${hash}. System halted.</p>`;
@@ -309,6 +325,109 @@ function initProjectImageZoom() {
         });
     });
 }
+function initMediaSlider() {
+    const sliders = document.querySelectorAll('.project-media-slider');
+    
+    sliders.forEach(slider => {
+        const track = slider.querySelector('.project-media-track');
+        const slides = slider.querySelectorAll('.project-media-slide');
+        const prevBtn = slider.querySelector('.media-arrow-prev');
+        const nextBtn = slider.querySelector('.media-arrow-next');
+        const indicators = slider.querySelectorAll('.media-indicator');
+        
+        if (!track || slides.length === 0) return;
+        
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+        
+        function updateSlider() {
+            // Move the track
+            const translateValue = -currentSlide * 100;
+            track.style.transform = `translateX(${translateValue}%)`;
+            
+            console.log(`Slider update: currentSlide=${currentSlide}, translateX=${translateValue}%`);
+            
+            // Update indicators
+            indicators.forEach((indicator, index) => {
+                if (index === currentSlide) {
+                    indicator.classList.add('active');
+                } else {
+                    indicator.classList.remove('active');
+                }
+            });
+            
+            // Update slider data attributes for arrow hiding
+            slider.setAttribute('data-slide', currentSlide);
+            if (currentSlide === totalSlides - 1) {
+                slider.setAttribute('data-last-slide', 'true');
+            } else {
+                slider.removeAttribute('data-last-slide');
+            }
+            
+            // Pause all videos except the current one
+            slides.forEach((slide, index) => {
+                const video = slide.querySelector('video');
+                if (video) {
+                    if (index === currentSlide) {
+                        // Current slide - don't autoplay, let user control it
+                    } else {
+                        // Other slides - pause them
+                        video.pause();
+                    }
+                }
+            });
+        }
+        
+        function goToSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+            currentSlide = index;
+            updateSlider();
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlider();
+            }
+        }
+        
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlider();
+            }
+        }
+        
+        // Event listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', prevSlide);
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', nextSlide);
+        }
+        
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                goToSlide(index);
+            });
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                nextSlide();
+            }
+        });
+        
+        // Initialize
+        updateSlider();
+    });
+}
+
+// Media slider is initialized in loadPage() after content is loaded
 
 // Typewriter Utility
 function typeWriter(element, text, speed = 20, callback) {
@@ -329,7 +448,6 @@ function typeWriter(element, text, speed = 20, callback) {
     type();
 }
 
-// Linux Kernel Boot Style Animation
 // Linux Kernel Boot Style Animation
 function animateHomeKernel() {
     const nameTextElement = document.querySelector('.name-text');
@@ -438,7 +556,38 @@ function animateHomeKernel() {
     typeName();
 }
 
-// About Me Animation
+// Show home page instantly without animations (for repeat visits)
+function showHomeInstant() {
+    const nameTextElement = document.querySelector('.name-text');
+    const loadingLines = document.querySelectorAll('.loading-line');
+    const bioSection = document.querySelector('.bio-section');
+    const descriptionElement = document.querySelector('.description-line .description');
+    const navSection = document.querySelector('.navigation-section');
+
+    if (nameTextElement) {
+        nameTextElement.textContent = 'Fabrizio Pellino';
+    }
+
+    loadingLines.forEach((line) => {
+        line.style.opacity = '1';
+        const statusOk = line.querySelector('.status-ok');
+        if (statusOk) statusOk.style.opacity = '1';
+    });
+
+    if (bioSection) {
+        bioSection.style.opacity = '1';
+    }
+
+    if (descriptionElement) {
+        descriptionElement.innerHTML = ' UI-UX Designer with a background<br>of product, usability and visual.';
+    }
+
+    if (navSection) {
+        navSection.style.opacity = '1';
+    }
+}
+
+// About Me Animation - SPED UP VERSION
 function animateAbout() {
     // 1. Photo/Rect fade in
     const photo = document.querySelector('.profile-photo');
@@ -447,17 +596,6 @@ function animateAbout() {
     // 2. UID types first
     const uidElement = document.querySelector('.profile-name');
     if (!uidElement) return;
-
-    // Store original text
-    const fullUidText = uidElement.innerText; // "UID: Fabrizio Pellino"
-    // But we need to keep the span structure? 
-    // The user wants "UID Fabrizio Pellino" animated. 
-    // Structure: <span class="uid-label">UID:</span> Fabrizio Pellino
-    // We can type the whole text content, or preserve HTML?
-    // Simplest approach: Type text content, then restore innerHTML or just keep text styled if possible.
-    // Given the span, we should reconstruct it or type into it. 
-    // Let's create a Helper to type into a container while preserving/creating structure if needed.
-    // Or simpler: Clear content, type "UID: " (wrap in span), then type "Fabrizio Pellino".
 
     uidElement.innerHTML = '';
     uidElement.style.opacity = '1';
@@ -478,7 +616,7 @@ function animateAbout() {
             }
             uidElement.querySelector('.uid-label').textContent += labelText.charAt(step);
             step++;
-            setTimeout(typeUid, 30);
+            setTimeout(typeUid, 15); // Sped up from 30ms
         } else if (step < labelText.length + nameText.length) {
             // Typing name
             const charIndex = step - labelText.length;
@@ -488,7 +626,7 @@ function animateAbout() {
             }
             uidElement.lastChild.textContent += nameText.charAt(charIndex);
             step++;
-            setTimeout(typeUid, 30);
+            setTimeout(typeUid, 15); // Sped up from 30ms
         } else {
             uidElement.classList.remove('typing-cursor');
             // Phase 3: Simultaneous typing of sub-text
@@ -496,78 +634,52 @@ function animateAbout() {
         }
     }
 
-    // Start UID typing after a small delay for photo
-    setTimeout(typeUid, 500);
+    // Start UID typing after a smaller delay
+    setTimeout(typeUid, 300); // Reduced from 500ms
 }
 
 function animateAboutDetails() {
     // Phase 3: Details (Class, Degree) and Contact (Speaks, Email, Phone) simultaneous
-    // Select all these elements
     const elementsToType = [
-        ...document.querySelectorAll('.profile-detail'), // Class and Degree
-        ...document.querySelectorAll('.contact-item')    // Speaks, Email, Phone
+        ...document.querySelectorAll('.profile-detail'),
+        ...document.querySelectorAll('.contact-item')
     ];
 
     elementsToType.forEach(el => {
-        // We need to preserve the <span> labels (Class:, Degree:, Speaks: etc)
-        // Similar logic to UID: Extract label and content, clear, then re-type.
-
         const labelSpan = el.querySelector('span');
         const labelText = labelSpan ? labelSpan.textContent : '';
-        const fullText = el.textContent; // "Class: Designer"
-        const contentText = fullText.substring(labelText.length).trim(); // "Designer" assuming simple structure
-        // Note: textContent strips HTML tags. 
-        // Let's grab the actual text node after the span.
+        const fullText = el.textContent;
+        const contentText = fullText.substring(labelText.length).trim();
 
-        // Reset element
         el.innerHTML = '';
-        el.style.opacity = '1'; // Ensure visible
+        el.style.opacity = '1';
 
-        // Create label span
         const newSpan = document.createElement('span');
         newSpan.className = labelSpan ? labelSpan.className : '';
-        newSpan.textContent = ''; // Start empty
+        newSpan.textContent = '';
         el.appendChild(newSpan);
 
-        // Create text node for content
         const newText = document.createTextNode('');
         el.appendChild(newText);
 
-        // Typewriter logic for this element
         let i = 0;
-        const totalLen = labelText.length + (contentText ? contentText.length : 0) + 1; // +1 for space
-
-        // We will type the Label first, then the content
 
         function typeChar() {
-            // Logic to type label then content
-            // Simple approach: Construct the full string and append char to correct node
-
-            // Re-constructing targets:
-            // 1. Label
-            // 2. Space? (Usually "Class: Designer" has " " in text node)
-            // 3. Content
-
-            // Let's simplify: Type labelText into span, then type contentText into textNode.
-
             if (i < labelText.length) {
                 newSpan.textContent += labelText.charAt(i);
                 i++;
-                setTimeout(typeChar, 10);
+                setTimeout(typeChar, 5); // Sped up from 10ms
             } else {
-                // Space logic
                 if (i === labelText.length) {
-                    newText.textContent += ' '; // Add space
+                    newText.textContent += ' ';
                     i++;
-                    setTimeout(typeChar, 10);
+                    setTimeout(typeChar, 5);
                 } else {
                     const contentIndex = i - labelText.length - 1;
                     if (contentIndex < contentText.length) {
                         newText.textContent += contentText.charAt(contentIndex);
                         i++;
-                        setTimeout(typeChar, 10); // Faster typing for details
-                    } else {
-                        // Done with this element
+                        setTimeout(typeChar, 5); // Sped up from 10ms
                     }
                 }
             }
@@ -576,41 +688,27 @@ function animateAboutDetails() {
         typeChar();
     });
 
-    // Trigger Phase 4 (Info sections) shortly after starting details
-    // "Info_about_me" and description appear after details start? 
-    // User said: "Per quanto riguarda info_about_me ... voglio che sia animata in typing dopo le animazioni descritte in precedenza."
-    // So we wait for Phase 3 to finish? Or start it sequentially?
-    // "le scritte sotto siano animate in simultanea"
-    // "info_about_me ... dopo"
-
-    // Estimate time for longest detail ~ 50 chars * 10ms = 500ms. Let's wait 800ms.
-    setTimeout(animateInfoSections, 1500);
+    // Reduced wait time before info sections
+    setTimeout(animateInfoSections, 800); // Reduced from 1500ms
 }
 
 function animateInfoSections() {
-    // Phase 4: info_about_me -> paragraphs
-    // Phase 5: info_skills -> paragraph
-
+    // Phase 4 & 5: Info sections - MUCH FASTER
     const contentDiv = document.querySelector('.about-text');
     if (!contentDiv) return;
 
-    const children = Array.from(contentDiv.children); // h3, p, p, p, h3, p...
-
-    // We need to animate them sequentially.
+    const children = Array.from(contentDiv.children);
     let index = 0;
 
     function processNext() {
         if (index >= children.length) {
-            // Done with info text.
-            // Phase 6: Skills Panel fade in
-            setTimeout(animateSkillsPanel, 500);
+            setTimeout(animateSkillsPanel, 200); // Reduced from 500ms
             return;
         }
 
         const el = children[index];
         const text = el.textContent.trim();
 
-        // Reset element
         el.textContent = '';
         el.style.opacity = '1';
         el.classList.add('typing-cursor');
@@ -620,11 +718,12 @@ function animateInfoSections() {
             if (charIdx < text.length) {
                 el.textContent += text.charAt(charIdx);
                 charIdx++;
-                setTimeout(type, 5); // Fast typing for long text
+                setTimeout(type, 2); // MUCH FASTER - was 5ms, now 2ms
             } else {
                 el.classList.remove('typing-cursor');
                 index++;
-                processNext(); // Start next paragraph immediately after
+                // Start next immediately - no delay
+                processNext();
             }
         }
         type();
@@ -640,11 +739,54 @@ function animateSkillsPanel() {
 
     panel.classList.add('fade-in-visible');
 
-    // Phase 7: Icons stagger 1-2-3
+    // Phase 7: Icons stagger - faster
     const icons = panel.querySelectorAll('.skill-item');
     icons.forEach((icon, i) => {
         setTimeout(() => {
             icon.classList.add('fade-in-visible');
-        }, i * 150); // 150ms delay between each
+        }, i * 80); // Faster - reduced from 150ms
     });
+}
+
+// Show about page instantly without animations (for repeat visits)
+function showAboutInstant() {
+    // Show photo
+    const photo = document.querySelector('.profile-photo');
+    if (photo) photo.classList.add('fade-in-visible');
+
+    // Show UID instantly
+    const uidElement = document.querySelector('.profile-name');
+    if (uidElement) {
+        uidElement.style.opacity = '1';
+        // Content is already in HTML, just make sure it's visible
+    }
+
+    // Show all details and contact info instantly
+    const elementsToShow = [
+        ...document.querySelectorAll('.profile-detail'),
+        ...document.querySelectorAll('.contact-item')
+    ];
+    elementsToShow.forEach(el => {
+        el.style.opacity = '1';
+    });
+
+    // Show all info sections instantly
+    const contentDiv = document.querySelector('.about-text');
+    if (contentDiv) {
+        const children = Array.from(contentDiv.children);
+        children.forEach(el => {
+            el.style.opacity = '1';
+        });
+    }
+
+    // Show skills panel and icons instantly
+    const panel = document.querySelector('.skills-panel');
+    if (panel) {
+        panel.classList.add('fade-in-visible');
+        const icons = panel.querySelectorAll('.skill-item');
+        icons.forEach(icon => {
+            icon.classList.add('fade-in-visible');
+        });
+    }
+// Media Slider Functionality
 }
