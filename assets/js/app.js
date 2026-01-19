@@ -68,17 +68,27 @@ async function loadPage(addToHistory = true) {
         // Mark page as visited
         visitedPages.add(hash);
 
-        // Trigger animations only on first visit
-        if (hash === 'home' && isFirstVisit) {
-            setTimeout(() => animateHomeKernel(), 50);
-        } else if (hash === 'home' && !isFirstVisit) {
-            // Show home content instantly without animation
-            showHomeInstant();
-        } else if (hash === 'about' && isFirstVisit) {
-            setTimeout(() => animateAbout(), 100);
-        } else if (hash === 'about' && !isFirstVisit) {
-            // Show about content instantly without animation
-            showAboutInstant();
+        // Trigger animations only on first visit, but wait for loading screen to be hidden
+        const startAnimations = () => {
+            if (hash === 'home' && isFirstVisit) {
+                setTimeout(() => animateHomeKernel(), 50);
+            } else if (hash === 'home' && !isFirstVisit) {
+                // Show home content instantly without animation
+                showHomeInstant();
+            } else if (hash === 'about' && isFirstVisit) {
+                setTimeout(() => animateAbout(), 100);
+            } else if (hash === 'about' && !isFirstVisit) {
+                // Show about content instantly without animation
+                showAboutInstant();
+            }
+        };
+
+        // If loading screen is already hidden, start animations immediately
+        if (window.loadingScreenHidden) {
+            startAnimations();
+        } else {
+            // Wait for loading screen to be hidden before starting animations
+            window.addEventListener('loadingScreenHidden', startAnimations, { once: true });
         }
 
         // Initialize interactive behaviors for the newly injected content
@@ -173,7 +183,12 @@ addressInput.addEventListener('keydown', (e) => {
 });
 
 window.addEventListener('hashchange', () => loadPage(true));
-document.addEventListener('DOMContentLoaded', () => loadPage(true));
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Reset to home on page load
+    window.location.hash = '#home';
+    loadPage(true);
+});
 
 // ----- Image Zoom ("At a Glance") -----
 
@@ -411,6 +426,38 @@ function initMediaSlider() {
             indicator.addEventListener('click', () => {
                 goToSlide(index);
             });
+        });
+        
+        // Add video play/pause listeners for background music control
+        slides.forEach((slide) => {
+            const video = slide.querySelector('video');
+            if (video) {
+                video.addEventListener('play', () => {
+                    const audio = document.getElementById('siteAudio');
+                    if (audio) {
+                        audio.pause();
+                        // Update music toggle icon to play
+                        const musicToggle = document.querySelector('.music-toggle i');
+                        if (musicToggle) {
+                            musicToggle.className = 'fa-solid fa-play';
+                        }
+                    }
+                });
+                
+                video.addEventListener('pause', () => {
+                    const audio = document.getElementById('siteAudio');
+                    if (audio) {
+                        audio.play().catch(err => {
+                            console.log('Audio autoplay prevented:', err);
+                        });
+                        // Update music toggle icon to pause
+                        const musicToggle = document.querySelector('.music-toggle i');
+                        if (musicToggle) {
+                            musicToggle.className = 'fa-solid fa-pause';
+                        }
+                    }
+                });
+            }
         });
         
         // Keyboard navigation

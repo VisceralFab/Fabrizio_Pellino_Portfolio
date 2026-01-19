@@ -7,11 +7,48 @@
     <meta name="description" content="Fabrizio Pellino - UI-UX Designer Portfolio">
     <title>Fabrizio Pellino | UI-UX Designer</title>
     <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/loading-kernel.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <!-- Linux Kernel Boot Loading Screen -->
+    <div id="loading-screen">
+        <!-- Top left: User and datetime -->
+        <div class="boot-info">
+            <div class="hostname">VisceralFab</div>
+            <div class="datetime">Loading...</div>
+        </div>
+        
+        <!-- Top center: OutOfTune branding -->
+        <div class="boot-branding">
+            OutOfTune
+        </div>
+        
+        <!-- Bottom left: Made with Love -->
+        <div class="made-with-love">
+            ❤ Made with Love
+        </div>
+        
+        <!-- Center: Boot messages -->
+        <div class="boot-container">
+            <div class="boot-messages"></div>
+            
+            <div class="boot-prompt">
+                <span class="boot-prompt-text">Press any key to continue</span>
+                <span class="boot-prompt-cursor"></span>
+            </div>
+        </div>
+        
+        <!-- Bottom: Click hint -->
+        <div class="click-hint">
+            Click anywhere or press Enter
+        </div>
+    </div>
+
+    <!-- Main Site Content -->
     <div class="background-glow"></div>
     <div class="scanlines"></div>
     <div class="crt-flicker"></div>
@@ -61,9 +98,7 @@
         </div>
     </div>
 
-    <script src="assets/js/app.js"></script>
-
-    <!-- Background audio + lightweight controls -->
+    <!-- Background audio -->
     <audio id="siteAudio" preload="auto" loop playsinline>
         <source src="assets/media/Background%20music.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
@@ -78,6 +113,9 @@
         <span class="music-percent"></span>
     </div>
 
+    <!-- Scripts -->
+    <script src="assets/js/loading-kernel.js"></script>
+    <script src="assets/js/app.js"></script>
     <script src="assets/js/audio.js"></script>
 </body>
 

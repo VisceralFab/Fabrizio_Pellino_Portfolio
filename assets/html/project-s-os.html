@@ -11,9 +11,45 @@
 
     <div class="project-detail-content">
         <div class="project-main">
-            <div class="project-image">
-                <img src="s-os.jpg" alt="S_OS Project"
-                    onerror="this.style.background='linear-gradient(135deg, #1a3a5c, #2d5a87)'; this.style.minHeight='300px';">
+            <!-- Media Slider Container -->
+            <div class="project-media-slider">
+                <div class="project-media-track">
+                    <!-- Slide 1: Image -->
+                    <div class="project-media-slide active">
+                        <div class="project-image">
+                            <img src="assets/images/s-os.PNG" alt="S_OS Project"
+                                onerror="this.style.background='linear-gradient(135deg, #1a3a5c, #2d5a87)'; this.style.minHeight='300px';">
+                        </div>
+                    </div>
+                    
+                    <!-- Slide 2: Video -->
+                    <div class="project-media-slide">
+                        <div class="project-video">
+                            <video controls>
+                                <source src="assets/videos/s-os.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Arrows -->
+                <button class="media-arrow media-arrow-prev" aria-label="Previous media">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button class="media-arrow media-arrow-next" aria-label="Next media">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+
+                <!-- Slide Indicators -->
+                <div class="media-indicators">
+                    <button class="media-indicator active" data-slide="0" aria-label="View image"></button>
+                    <button class="media-indicator" data-slide="1" aria-label="View video"></button>
+                </div>
             </div>
 
             <h3 class="section-label">info_S_OS:</h3>
