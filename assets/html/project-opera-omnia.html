@@ -6,9 +6,9 @@
         <a href="#project-straight-outta-napule" class="project-nav-link">Project 3: Straight Outta Napule →</a>
     </div>
 
-
     <h1 class="project-detail-title"><span class="project-number">2#</span> Opera Omnia</h1>
 
+    <!-- BLOCK 1 (già esistente) -->
     <div class="project-detail-content">
         <div class="project-main">
             <div class="project-image">
@@ -58,4 +58,34 @@
             </div>
         </div>
     </div>
+
+    <!-- BLOCK 2 (nuovo, visibile scrollando) -->
+    <div class="project-detail-content project-detail-content--stack">
+        <div class="project-main">
+            <div class="project-image">
+                <img src="assets/images/render 2 migliorato.png" alt="Opera Omnia Render 2"
+                    onerror="this.style.background='linear-gradient(135deg, #1a3a5c, #2d5a87)'; this.style.minHeight='300px';">
+            </div>
+
+            <h3 class="section-label">info_Opera_Omnia:</h3>
+            <p class="project-info-text">
+                A key feature of Opera Omnia is collective participation.
+                Anyone can interact with the installation through a QR code which, when scanned,
+                redirects to a carrd.co page that allows people to submit their own work.
+            </p>
+        </div>
+
+        <div class="project-sidebar">
+            <h3 class="sidebar-title">Participation</h3>
+
+            <div class="qr-card">
+                <!-- Cambia QUI con il link reale carrd -->
+                <a class="qr-link" href="https://variabilekcg.carrd.co" target="_blank" rel="noopener noreferrer">
+                    <img class="qr-image" src="assets/images/QR.png" alt="Opera Omnia QR code">
+                </a>
+                <p class="qr-hint">Scan to open the submission page.</p>
+            </div>
+        </div>
+    </div>
+
 </section>
