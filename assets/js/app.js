@@ -120,8 +120,10 @@ function updateUI(sectionName) {
     // Toggle internal scrolling for projects (except Fede Link which is single page)
     if ((sectionName.startsWith('project') && sectionName !== 'project-fede-link') || sectionName === 'projects') {
         terminalWindow.classList.add('scroll-mode');
+        terminalWindow.classList.remove('no-scroll');
     } else {
         terminalWindow.classList.remove('scroll-mode');
+        terminalWindow.classList.add('no-scroll');
     }
 }
 
@@ -504,6 +506,9 @@ function animateHomeKernel() {
     const navSection = document.querySelector('.navigation-section');
 
     if (!nameTextElement) return;
+
+    // Clear any existing text to prevent duplication
+    nameTextElement.textContent = '';
 
     // Step 1: Type name (instant typewriter effect)
     const fullName = 'Fabrizio Pellino';
