@@ -700,8 +700,15 @@ function animateAboutDetails() {
     elementsToType.forEach(el => {
         const labelSpan = el.querySelector('span');
         const labelText = labelSpan ? labelSpan.textContent : '';
-        const fullText = el.textContent;
-        const contentText = fullText.substring(labelText.length).trim();
+        
+        // Get all text content after the span element
+        let contentText = '';
+        for (let node of el.childNodes) {
+            if (node !== labelSpan && node.nodeType === Node.TEXT_NODE) {
+                contentText += node.textContent;
+            }
+        }
+        contentText = contentText.trim();
 
         el.innerHTML = '';
         el.style.opacity = '1';
@@ -720,7 +727,7 @@ function animateAboutDetails() {
             if (i < labelText.length) {
                 newSpan.textContent += labelText.charAt(i);
                 i++;
-                setTimeout(typeChar, 5); // Sped up from 10ms
+                setTimeout(typeChar, 5);
             } else {
                 if (i === labelText.length) {
                     newText.textContent += ' ';
@@ -731,7 +738,7 @@ function animateAboutDetails() {
                     if (contentIndex < contentText.length) {
                         newText.textContent += contentText.charAt(contentIndex);
                         i++;
-                        setTimeout(typeChar, 5); // Sped up from 10ms
+                        setTimeout(typeChar, 5);
                     }
                 }
             }
