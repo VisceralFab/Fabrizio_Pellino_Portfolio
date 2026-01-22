@@ -1,12 +1,12 @@
 /* Initial States for Animations */
-.profile-photo,
-.profile-name,
-.profile-detail,
-.contact-item,
-.section-label,
-.about-paragraph,
-.skills-panel,
-.skill-item {
+#about .profile-photo,
+#about .profile-name,
+#about .profile-detail,
+#about .contact-item,
+#about .section-label,
+#about .about-paragraph,
+#about .skills-panel,
+#about .skill-item {
     opacity: 0;
     transition: opacity 0.5s ease;
 }

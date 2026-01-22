@@ -87,7 +87,6 @@
     width: 100%;
     height: auto;
     display: block;
-    vertical-align: bottom;
 }
 
 /* IMAGE ZOOM OVERLAY ("At a Glance") */
@@ -508,7 +507,6 @@
     width: 100%;
     height: auto;
     display: block;
-    vertical-align: bottom;
 }
 
 /* Standalone project-image (not in slider) */
@@ -525,7 +523,6 @@
     width: 100%;
     height: auto;
     display: block;
-    vertical-align: bottom;
 }
 
 
@@ -601,6 +598,7 @@
 .scrollable-media-container::-webkit-scrollbar-thumb:hover {
     background: rgba(100, 150, 200, 0.8);
 }
+
 .qr-hint {
     color: #9aa5b0;
     font-size: 12px;
