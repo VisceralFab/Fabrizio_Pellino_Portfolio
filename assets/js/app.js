@@ -434,21 +434,26 @@ function initMediaSlider() {
         slides.forEach((slide) => {
             const video = slide.querySelector('video');
             if (video) {
+                let wasMusicPlaying = false; // Track if music was playing before video started
+                
                 video.addEventListener('play', () => {
                     const audio = document.getElementById('siteAudio');
                     if (audio) {
-                        audio.pause();
-                        // Update music toggle icon to play
-                        const musicToggle = document.querySelector('.music-toggle i');
-                        if (musicToggle) {
-                            musicToggle.className = 'fa-solid fa-play';
+                        wasMusicPlaying = !audio.paused; // Store music state before pausing
+                        if (wasMusicPlaying) {
+                            audio.pause();
+                            // Update music toggle icon to play
+                            const musicToggle = document.querySelector('.music-toggle i');
+                            if (musicToggle) {
+                                musicToggle.className = 'fa-solid fa-play';
+                            }
                         }
                     }
                 });
                 
                 video.addEventListener('pause', () => {
                     const audio = document.getElementById('siteAudio');
-                    if (audio) {
+                    if (audio && wasMusicPlaying) { // Only resume if music was playing before
                         audio.play().catch(err => {
                             console.log('Audio autoplay prevented:', err);
                         });
