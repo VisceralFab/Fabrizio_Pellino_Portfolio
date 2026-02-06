@@ -13,7 +13,7 @@
   // I will set it to 0.3 by default. If the user had it higher, maybe we should respect it?
   // "vorrei che il volume standard sia abbastanza basso (massimo 30%)" -> "I would like the standard volume to be quite low (max 30%)"
   // I'll adhere to 0.3.
-  let startVolume = 0.04;
+  let startVolume = 0.08;
   // If we want to remember volume across sessions:
   // let savedVolume = parseFloat(localStorage.getItem(STORAGE_KEYS.volume));
   // if (!Number.isNaN(savedVolume)) startVolume = savedVolume;
