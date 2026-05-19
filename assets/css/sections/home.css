@@ -18,17 +18,25 @@
 
 /* Name Section */
 .terminal-name {
-    font-size: 2.5rem;
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
     font-weight: 600;
     color: #e8eaed;
     margin-bottom: 25px;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 6px;
 }
 
 .name-text {
     display: inline;
+    margin-left: 8px; /* Give space between | cursor and text */
+}
+
+.terminal-pipe {
+    color: #ffffff;
+    font-weight: 300;
+    animation: blink 1s step-end infinite;
 }
 
 /* Loading Messages */

@@ -7,55 +7,25 @@
     <meta name="description" content="Fabrizio Pellino - UI-UX Designer Portfolio">
     <title>Fabrizio Pellino | UI-UX Designer</title>
     <link rel="stylesheet" href="assets/css/main.css">
-    <link rel="stylesheet" href="assets/css/loading-kernel.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;500;700&family=Fira+Code:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
-    <!-- Linux Kernel Boot Loading Screen -->
-    <div id="loading-screen">
-        <!-- Top left: User and datetime -->
-        <div class="boot-info">
-            <div class="hostname">VisceralFab</div>
-            <div class="datetime">Loading...</div>
+    <!-- OutOfTune Layout Elements -->
+    <div id="landing-wrapper">
+        <div id="globe-target"></div>
+        
+        <div class="landing-center">
+            <h1 class="landing-title">Fabrizio Pellino</h1>
+            <p class="landing-subtitle">UI-UX Designer — built for product, usability & visual.</p>
         </div>
-
-        <!-- Top center: OutOfTune branding -->
-        <div class="boot-branding">
-            OutOfTune
-        </div>
-
-        <!-- Bottom left: Made with Love -->
-        <div class="made-with-love">
-            ❤ Made with Love
-        </div>
-
-        <!-- Center: Boot messages -->
-        <div class="boot-container">
-            <div class="boot-messages"></div>
-
-            <div class="boot-prompt">
-                <span class="boot-prompt-text">Press any key to continue</span>
-                <span class="boot-prompt-cursor"></span>
-            </div>
-        </div>
-
-        <!-- Bottom: Click hint -->
-        <div class="click-hint">
-            Click anywhere or press Enter
-        </div>
+        
+        <p class="landing-hint" id="continue-btn">Click or tap anywhere to continue</p>
     </div>
 
     <!-- Main Site Content -->
-    <div class="background-glow"></div>
-    <div class="scanlines"></div>
-    <div class="crt-flicker"></div>
-    <div class="crt-vignette"></div>
-    <div class="crt-noise"></div>
-    <div class="rgb-shift"></div>
-
     <div class="terminal-window">
         <!-- Terminal Header -->
         <div class="terminal-header">
@@ -105,17 +75,19 @@
     </audio>
 
     <div id="musicControl" aria-label="Background music control" title="Background music">
-        <button id="musicToggle" class="music-toggle" title="Toggle background music" aria-pressed="false">
-            <i class="fa-solid fa-play" aria-hidden="true"></i>
-            <span class="sr-only">Play background music</span>
-        </button>
-        <span class="music-label">Now playing: Kyuujitsuno Sugoshinokakata - Kirinji</span>
-        <input id="musicVolume" class="music-volume" type="range" min="0" max="1" step="0.01" aria-label="Music volume">
-        <span class="music-percent"></span>
+        <span class="music-label">休日の過ごし方 - キリンジ</span>
+        <div class="music-controls-row">
+            <button id="musicToggle" class="music-toggle" title="Toggle background music" aria-pressed="false">
+                <i class="fa-solid fa-play" aria-hidden="true"></i>
+                <span class="sr-only">Play background music</span>
+            </button>
+            <input id="musicVolume" class="music-volume" type="range" min="0" max="1" step="0.01" aria-label="Music volume">
+            <span class="music-percent">8%</span>
+        </div>
     </div>
 
     <!-- Scripts -->
-    <script src="assets/js/loading-kernel.js"></script>
+    <script src="assets/js/sphere.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/audio.js"></script>
 </body>

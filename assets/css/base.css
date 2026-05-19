@@ -10,7 +10,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #0a0a0f;
+    background: var(--bg-dark, #000714);
     font-family: 'Fira Code', monospace;
     overflow-x: hidden;
     padding: 20px;
@@ -25,9 +25,9 @@ body {
     width: 800px;
     height: 600px;
     background: radial-gradient(ellipse at center,
-            rgba(0, 180, 180, 0.15) 0%,
-            rgba(0, 120, 120, 0.08) 30%,
-            rgba(0, 60, 60, 0.03) 50%,
+            rgba(0, 220, 248, 0.18) 0%,
+            rgba(0, 180, 220, 0.08) 35%,
+            rgba(0, 90, 120, 0.02) 60%,
             transparent 70%);
     pointer-events: none;
     z-index: 0;

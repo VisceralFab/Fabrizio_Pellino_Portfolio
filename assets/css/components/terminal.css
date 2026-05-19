@@ -4,15 +4,16 @@
     z-index: 1;
     width: 95%;
     max-width: 1200px;
-    background: rgba(10, 10, 10, 0.95);
-    border-radius: 12px;
+    background: rgba(10, 12, 16, 0.76); /* Translucent dark charcoal */
+    backdrop-filter: blur(25px) saturate(140%); /* macOS Glassmorphism */
+    -webkit-backdrop-filter: blur(25px) saturate(140%);
+    border-radius: 16px; /* Smooth Apple rounded corners */
     box-shadow:
-        0 0 60px rgba(0, 180, 180, 0.1),
-        0 25px 50px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        0 0 80px rgba(0, 212, 212, 0.08),
+        0 30px 60px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     overflow: hidden;
-    border: 1px solid rgba(60, 70, 90, 0.5);
-    animation: popup 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Minimalist light border */
     transform-origin: center center;
 }
 
@@ -39,9 +40,9 @@
 .terminal-header {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
-    background: rgba(18, 18, 18, 0.9);
-    border-bottom: 1px solid rgba(60, 70, 90, 0.3);
+    padding: 14px 20px;
+    background: rgba(20, 24, 30, 0.85); /* Premium heading bar */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .terminal-buttons {
@@ -53,6 +54,12 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.terminal-buttons span:hover {
+    filter: brightness(1.15);
 }
 
 .btn-close {

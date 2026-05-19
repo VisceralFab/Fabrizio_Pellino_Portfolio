@@ -13,6 +13,8 @@ let navigationHistory = [];
 let historyIndex = -1;
 let isTraversingHistory = false;
 
+let isTypingHome = false;
+
 // Track visited pages to skip animations
 let visitedPages = new Set();
 
@@ -70,11 +72,23 @@ async function loadPage(addToHistory = true) {
 
         // Trigger animations only on first visit, but wait for loading screen to be hidden
         const startAnimations = () => {
-            if (hash === 'home' && isFirstVisit) {
-                setTimeout(() => animateHomeKernel(), 50);
-            } else if (hash === 'home' && !isFirstVisit) {
-                // Show home content instantly without animation
-                showHomeInstant();
+            if (hash === 'home') {
+                const terminalWin = document.querySelector('.terminal-window');
+                // Only run home animation if terminal is already visible!
+                // If not visible yet, enterPortfolio() will trigger it!
+                if (terminalWin && terminalWin.classList.contains('is-visible')) {
+                    if (isFirstVisit) {
+                        setTimeout(() => animateHomeKernel(), 50);
+                    } else {
+                        showHomeInstant();
+                    }
+                } else {
+                    // Pre-fill elements to be ready, but don't animate yet
+                    const nameTextElement = document.querySelector('.name-text');
+                    if (nameTextElement) {
+                        nameTextElement.textContent = '';
+                    }
+                }
             } else if (hash === 'about' && isFirstVisit) {
                 setTimeout(() => animateAbout(), 100);
             } else if (hash === 'about' && !isFirstVisit) {
@@ -82,14 +96,8 @@ async function loadPage(addToHistory = true) {
                 showAboutInstant();
             }
         };
-
-        // If loading screen is already hidden, start animations immediately
-        if (window.loadingScreenHidden) {
-            startAnimations();
-        } else {
-            // Wait for loading screen to be hidden before starting animations
-            window.addEventListener('loadingScreenHidden', startAnimations, { once: true });
-        }
+        // Start animations immediately
+        startAnimations();
 
         // Initialize interactive behaviors for the newly injected content
         initProjectImageZoom();
@@ -186,10 +194,106 @@ addressInput.addEventListener('keydown', (e) => {
 
 window.addEventListener('hashchange', () => loadPage(true));
 
+function enterPortfolio() {
+    const landingWrapper = document.getElementById('landing-wrapper');
+    const landingCenter = document.querySelector('.landing-center');
+    const globeTarget = document.getElementById('globe-target');
+    const landingHint = document.querySelector('.landing-hint');
+    const terminalWin = document.querySelector('.terminal-window');
+    const musicCtrl = document.getElementById('musicControl');
+
+    if (landingCenter) landingCenter.classList.add('fade-out');
+    if (globeTarget) globeTarget.classList.add('fade-out');
+    if (landingHint) landingHint.classList.add('fade-out');
+    if (musicCtrl) musicCtrl.classList.add('is-visible');
+
+    if (landingWrapper) {
+        setTimeout(() => {
+            landingWrapper.style.pointerEvents = 'none';
+        }, 800);
+    }
+
+    if (terminalWin) {
+        terminalWin.classList.add('is-visible');
+    }
+
+    // Trigger home typewriter animation on entrance
+    animateHomeKernel();
+
+    // Play site audio
+    const audio = document.getElementById('siteAudio');
+    if (audio) {
+        audio.play().then(() => {
+            const toggle = document.getElementById('musicToggle');
+            if (toggle) {
+                toggle.setAttribute('aria-pressed', 'true');
+                const icon = toggle.querySelector('i');
+                if (icon) icon.className = 'fa-solid fa-pause';
+            }
+        }).catch(err => {
+            console.log('Autoplay pending user action:', err);
+        });
+    }
+}
+
+function exitPortfolio() {
+    const landingWrapper = document.getElementById('landing-wrapper');
+    const landingCenter = document.querySelector('.landing-center');
+    const globeTarget = document.getElementById('globe-target');
+    const landingHint = document.querySelector('.landing-hint');
+    const terminalWin = document.querySelector('.terminal-window');
+    const musicCtrl = document.getElementById('musicControl');
+
+    if (landingCenter) landingCenter.classList.remove('fade-out');
+    if (globeTarget) globeTarget.classList.remove('fade-out');
+    if (landingHint) landingHint.classList.remove('fade-out');
+    if (musicCtrl) musicCtrl.classList.remove('is-visible');
+
+    if (landingWrapper) {
+        landingWrapper.style.pointerEvents = 'auto';
+    }
+
+    if (terminalWin) {
+        terminalWin.classList.remove('is-visible');
+    }
+
+    // Reset typewriter state so it can animate next time
+    isTypingHome = false;
+    const nameTextElement = document.querySelector('.name-text');
+    if (nameTextElement) {
+        nameTextElement.textContent = '';
+    }
+    const bioSection = document.querySelector('.bio-section');
+    const navSection = document.querySelector('.navigation-section');
+    if (bioSection) bioSection.style.opacity = '0';
+    if (navSection) navSection.style.opacity = '0';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Reset to home on page load
     window.location.hash = '#home';
     loadPage(true);
+
+    // Click anywhere on landing wrapper to continue (exactly like OutOfTune)
+    const landingWrapper = document.getElementById('landing-wrapper');
+    if (landingWrapper) {
+        landingWrapper.addEventListener('click', enterPortfolio);
+    }
+
+    // Continue button text hint click listener
+    const continueBtn = document.getElementById('continue-btn');
+    if (continueBtn) {
+        continueBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent duplicate trigger from bubbling
+            enterPortfolio();
+        });
+    }
+
+    // Close button interaction
+    const closeBtn = document.querySelector('.btn-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', exitPortfolio);
+    }
 });
 
 // ----- Image Zoom ("At a Glance") -----
@@ -504,144 +608,55 @@ function typeWriter(element, text, speed = 20, callback) {
 
 // Linux Kernel Boot Style Animation
 function animateHomeKernel() {
+    if (isTypingHome) return; // Guard against concurrent animations
+
     const nameTextElement = document.querySelector('.name-text');
-    const loadingLines = document.querySelectorAll('.loading-line');
     const bioSection = document.querySelector('.bio-section');
-    const descriptionElement = document.querySelector('.description-line .description');
     const navSection = document.querySelector('.navigation-section');
 
-    if (!nameTextElement) return;
+    if (nameTextElement) {
+        isTypingHome = true;
+        nameTextElement.textContent = '';
+        const fullName = 'Fabrizio Pellino';
+        let nameIndex = 0;
 
-    // Clear any existing text to prevent duplication
-    nameTextElement.textContent = '';
-
-    // Step 1: Type name (instant typewriter effect)
-    const fullName = 'Fabrizio Pellino';
-    let nameIndex = 0;
-
-    function typeName() {
-        if (nameIndex < fullName.length) {
-            nameTextElement.textContent += fullName.charAt(nameIndex);
-            nameIndex++;
-            setTimeout(typeName, 30);
-        } else {
-            // Step 2: After name, wait 400ms then show loading lines
-            setTimeout(processLoadingLines, 400);
-        }
-    }
-
-    function processLoadingLines() {
-        let lineDelay = 0;
-        const lineInterval = 600; // Time between each line starting
-
-        loadingLines.forEach((line) => {
-            const statusOk = line.querySelector('.status-ok');
-
-            // 1. Show the line (text visible, status hidden)
-            setTimeout(() => {
-                line.style.opacity = '1';
-
-                // 2. Show [ OK ] shortly after text appears
-                setTimeout(() => {
-                    if (statusOk) statusOk.style.opacity = '1';
-                }, 400);
-
-            }, lineDelay);
-
-            lineDelay += lineInterval;
-        });
-
-        // After all loading lines are done (approx), show bio section
-        setTimeout(showBioSection, lineDelay + 400);
-    }
-
-    function showBioSection() {
-        if (bioSection) {
-            bioSection.style.opacity = '1';
-        }
-
-        if (descriptionElement) {
-            // Hardcoded typewriter logic for the specific text to handle the <br>
-            // " UI-UX Designer with a background" + <br> + "of product, usability and visual."
-            const line1 = " UI-UX Designer with a background";
-            const line2 = "of product, usability and visual.";
-
-            descriptionElement.innerHTML = ''; // Clear text
-            descriptionElement.classList.add('typing-cursor');
-
-            let i = 0;
-            function typeLine1() {
-                if (i < line1.length) {
-                    descriptionElement.innerHTML += line1.charAt(i);
-                    i++;
-                    setTimeout(typeLine1, 20);
-                } else {
-                    // Line 1 done, add BR
-                    descriptionElement.innerHTML += '<br>';
-                    // Start Line 2
-                    setTimeout(() => {
-                        let j = 0;
-                        function typeLine2() {
-                            if (j < line2.length) {
-                                descriptionElement.innerHTML += line2.charAt(j);
-                                j++;
-                                setTimeout(typeLine2, 20);
-                            } else {
-                                descriptionElement.classList.remove('typing-cursor');
-                                // Show navigation after typing is done
-                                setTimeout(showNav, 200);
-                            }
-                        }
-                        typeLine2();
-                    }, 100);
+        function typeName() {
+            if (nameIndex < fullName.length) {
+                nameTextElement.textContent += fullName.charAt(nameIndex);
+                nameIndex++;
+                setTimeout(typeName, 65);
+            } else {
+                isTypingHome = false;
+                if (bioSection) {
+                    bioSection.style.transition = 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+                    bioSection.style.opacity = '1';
+                }
+                if (navSection) {
+                    navSection.style.transition = 'opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+                    navSection.style.opacity = '1';
                 }
             }
-            typeLine1();
-        } else {
-            // Fallback if element missing
-            setTimeout(showNav, 300);
         }
-    }
 
-    function showNav() {
-        if (navSection) {
-            navSection.style.opacity = '1';
-        }
+        setTimeout(typeName, 300);
+    } else {
+        if (bioSection) bioSection.style.opacity = '1';
+        if (navSection) navSection.style.opacity = '1';
     }
-
-    // Start the animation
-    typeName();
 }
 
 // Show home page instantly without animations (for repeat visits)
 function showHomeInstant() {
+    isTypingHome = false;
     const nameTextElement = document.querySelector('.name-text');
-    const loadingLines = document.querySelectorAll('.loading-line');
     const bioSection = document.querySelector('.bio-section');
-    const descriptionElement = document.querySelector('.description-line .description');
     const navSection = document.querySelector('.navigation-section');
 
     if (nameTextElement) {
         nameTextElement.textContent = 'Fabrizio Pellino';
     }
-
-    loadingLines.forEach((line) => {
-        line.style.opacity = '1';
-        const statusOk = line.querySelector('.status-ok');
-        if (statusOk) statusOk.style.opacity = '1';
-    });
-
-    if (bioSection) {
-        bioSection.style.opacity = '1';
-    }
-
-    if (descriptionElement) {
-        descriptionElement.innerHTML = ' UI-UX Designer with a background<br>of product, usability and visual.';
-    }
-
-    if (navSection) {
-        navSection.style.opacity = '1';
-    }
+    if (bioSection) bioSection.style.opacity = '1';
+    if (navSection) navSection.style.opacity = '1';
 }
 
 // About Me Animation - SPED UP VERSION
@@ -696,104 +711,41 @@ function animateAbout() {
 }
 
 function animateAboutDetails() {
-    // Phase 3: Details (Class, Degree) and Contact (Speaks, Email, Phone) simultaneous
-    const elementsToType = [
+    // Phase 3: Details and Contact fade in with staggered elegance
+    const elements = [
         ...document.querySelectorAll('.profile-detail'),
         ...document.querySelectorAll('.contact-item')
     ];
 
-    elementsToType.forEach(el => {
-        const labelSpan = el.querySelector('span');
-        const labelText = labelSpan ? labelSpan.textContent : '';
-        
-        // Get all text content after the span element
-        let contentText = '';
-        for (let node of el.childNodes) {
-            if (node !== labelSpan && node.nodeType === Node.TEXT_NODE) {
-                contentText += node.textContent;
-            }
-        }
-        contentText = contentText.trim();
-
-        el.innerHTML = '';
-        el.style.opacity = '1';
-
-        const newSpan = document.createElement('span');
-        newSpan.className = labelSpan ? labelSpan.className : '';
-        newSpan.textContent = '';
-        el.appendChild(newSpan);
-
-        const newText = document.createTextNode('');
-        el.appendChild(newText);
-
-        let i = 0;
-
-        function typeChar() {
-            if (i < labelText.length) {
-                newSpan.textContent += labelText.charAt(i);
-                i++;
-                setTimeout(typeChar, 5);
-            } else {
-                if (i === labelText.length) {
-                    newText.textContent += ' ';
-                    i++;
-                    setTimeout(typeChar, 5);
-                } else {
-                    const contentIndex = i - labelText.length - 1;
-                    if (contentIndex < contentText.length) {
-                        newText.textContent += contentText.charAt(contentIndex);
-                        i++;
-                        setTimeout(typeChar, 5);
-                    }
-                }
-            }
-        }
-
-        typeChar();
+    elements.forEach((el, index) => {
+        setTimeout(() => {
+            el.classList.add('fade-in-visible');
+            el.style.opacity = '1';
+        }, index * 80); // Fast, sleek stagger
     });
 
-    // Reduced wait time before info sections
-    setTimeout(animateInfoSections, 800); // Reduced from 1500ms
+    // Stagger transition to info sections
+    setTimeout(animateInfoSections, elements.length * 80 + 150);
 }
 
 function animateInfoSections() {
-    // Phase 4 & 5: Info sections - MUCH FASTER
+    // Phase 4 & 5: Biography text paragraphs fade in with staggered ease
     const contentDiv = document.querySelector('.about-text');
-    if (!contentDiv) return;
-
-    const children = Array.from(contentDiv.children);
-    let index = 0;
-
-    function processNext() {
-        if (index >= children.length) {
-            setTimeout(animateSkillsPanel, 200); // Reduced from 500ms
-            return;
-        }
-
-        const el = children[index];
-        const text = el.textContent.trim();
-
-        el.textContent = '';
-        el.style.opacity = '1';
-        el.classList.add('typing-cursor');
-
-        let charIdx = 0;
-        function type() {
-            if (charIdx < text.length) {
-                el.textContent += text.charAt(charIdx);
-                charIdx++;
-                setTimeout(type, 2); // MUCH FASTER - was 5ms, now 2ms
-            } else {
-                el.classList.remove('typing-cursor');
-                index++;
-                // Start next immediately - no delay
-                processNext();
-            }
-        }
-        type();
+    if (!contentDiv) {
+        animateSkillsPanel();
+        return;
     }
 
-    processNext();
+    const children = Array.from(contentDiv.children);
+    children.forEach((el, index) => {
+        setTimeout(() => {
+            el.classList.add('fade-in-visible');
+            el.style.opacity = '1';
+        }, index * 100); // Super clean staggered fade-in
+    });
+
+    // Start skills panel fade-in after paragraphs begin appearing
+    setTimeout(animateSkillsPanel, children.length * 100 + 150);
 }
 
 function animateSkillsPanel() {

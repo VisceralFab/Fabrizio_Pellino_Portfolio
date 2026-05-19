@@ -1,6 +1,6 @@
 @import 'base.css';
 @import 'layout.css';
-@import 'scanlines.css';
+@import 'components/landing.css';
 @import 'components/terminal.css';
 @import 'components/buttons.css';
 @import 'components/profile.css';
@@ -9,110 +9,148 @@
 @import 'sections/home.css';
 @import 'sections/about.css';
 
-/* Minimal bottom-centered music control (non-invasive) */
+/* Sleek, flat, centered background music player (OutOfTune style) */
 #musicControl {
     position: fixed;
     left: 50%;
-    transform: translateX(-50%) translateY(-2px);
-    bottom: 14px;
+    transform: translateX(-50%) translateY(10px);
+    bottom: 24px;
     z-index: 1200;
-    display: inline-flex;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.45);
-    color: #00d4d4;
-    opacity: 1;
-    transition: opacity 0.18s ease, transform 0.12s ease, background 0.18s, border-color 0.3s, box-shadow 0.3s;
-    backdrop-filter: blur(6px) saturate(120%);
-    box-shadow:
-        0 0 20px rgba(0, 180, 180, 0.15),
-        inset 0 0 20px rgba(0, 180, 180, 0.05);
-    border: 1px solid rgba(0, 180, 180, 0.6);
+    gap: 6px;
+    color: rgba(220, 242, 255, 0.65); /* Elegant light ice color */
+    opacity: 0; /* Hidden initially, fades in only after click-anywhere transition */
+    pointer-events: none;
+    transition: 
+        opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        color 0.3s ease;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
 }
 
-#musicControl:focus-within,
+#musicControl.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
 #musicControl:hover {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-4px);
-    background: rgba(0, 0, 0, 0.55);
-    border-color: rgba(0, 220, 220, 0.8);
-    color: #00e6e6;
-    box-shadow:
-        0 0 25px rgba(0, 180, 180, 0.25),
-        inset 0 0 25px rgba(0, 180, 180, 0.08);
+    color: #00dcf8; /* Luminescent cyan highlight on hover */
 }
 
-.music-toggle {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.92rem;
-    cursor: pointer;
-    color: inherit;
-    padding: 0;
-    transition: all 0.2s ease;
-}
-
-.music-toggle:focus {
-    outline: 2px solid rgba(255, 255, 255, 0.12);
-    outline-offset: 2px;
-}
-
-/* Now playing label */
+/* Song Title Styling */
 .music-label {
-    font-family: 'Fira Code', monospace;
-    font-size: 13px;
-    color: #00d4d4;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    font-size: 11px;
     font-weight: 500;
+    letter-spacing: 0.08em;
     white-space: nowrap;
-    opacity: 1;
-    transition: color 0.2s ease;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    opacity: 0.8;
+    transition: opacity 0.3s ease, color 0.3s ease;
 }
 
 #musicControl:hover .music-label {
-    color: #00e6e6;
+    opacity: 1;
 }
 
-.music-volume {
-    width: 96px;
+/* Flat Borderless Toggle Button */
+.music-toggle {
+    background: transparent !important;
+    border: none !important;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    color: inherit;
+    padding: 0;
+    margin: 2px 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+    opacity: 0.7;
+}
+
+.music-toggle:hover {
     opacity: 1;
-    transition: width 0.18s ease, opacity 0.18s ease;
+    transform: scale(1.15);
+}
+
+/* Controls Row - Perfect Centered Balance */
+.music-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+#musicControl:hover .music-controls-row {
+    opacity: 0.85;
+}
+
+/* Sleek Minimal Range Slider */
+.music-volume {
+    width: 60px;
+    height: 2px;
     appearance: none;
     -webkit-appearance: none;
-    background: transparent;
+    background: rgba(220, 242, 255, 0.2);
+    border-radius: 1px;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
 
-/* Percentage display */
+.music-volume:hover {
+    background: rgba(0, 220, 248, 0.4);
+}
+
+/* Slider Thumb Styling */
+.music-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00dcf8;
+    cursor: pointer;
+    box-shadow: 0 0 8px #00dcf8;
+    transition: transform 0.15s ease;
+}
+
+.music-volume::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+}
+
+.music-volume::-moz-range-thumb {
+    width: 6px;
+    height: 6px;
+    border: none;
+    border-radius: 50%;
+    background: #00dcf8;
+    cursor: pointer;
+    box-shadow: 0 0 8px #00dcf8;
+    transition: transform 0.15s ease;
+}
+
+.music-volume::-moz-range-thumb:hover {
+    transform: scale(1.3);
+}
+
+/* Percentage Display styling */
 .music-percent {
     font-family: 'Fira Code', monospace;
-    font-size: 12px;
-    width: 32px;
-    opacity: 1;
-    overflow: hidden;
-    white-space: nowrap;
-    transition: width 0.18s ease, opacity 0.18s ease;
-    color: #00d4d4;
+    font-size: 9px;
+    width: 24px;
+    color: inherit;
     font-weight: 500;
-    margin-right: 8px;
-}
-
-@media (prefers-color-scheme: light) {
-    #musicControl {
-        background: rgba(255, 255, 255, 0.85);
-        color: #111;
-        opacity: 0.9
-    }
-
-    .music-toggle {
-        background: rgba(0, 0, 0, 0.04);
-        color: inherit;
-        border: 1px solid rgba(0, 0, 0, 0.04);
-    }
+    text-align: left;
 }

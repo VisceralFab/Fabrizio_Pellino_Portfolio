@@ -93,4 +93,19 @@
       toggle.click();
     }
   });
+
+  // Autoplay on first click/keydown anywhere on the document (modern browser compliant)
+  const startAutoplay = () => {
+    if (audio.paused) {
+      audio.play().then(() => {
+        setToggleIcon(true);
+      }).catch(err => {
+        console.log('Autoplay deferred until active interaction:', err);
+      });
+    }
+    document.removeEventListener('click', startAutoplay);
+    document.removeEventListener('keydown', startAutoplay);
+  };
+  document.addEventListener('click', startAutoplay);
+  document.addEventListener('keydown', startAutoplay);
 })();
