@@ -1,59 +1,66 @@
 (function () {
   const audio = document.getElementById('siteAudio');
+  const musicControl = document.getElementById('musicControl');
   const toggle = document.getElementById('musicToggle');
   const volume = document.getElementById('musicVolume');
-  if (!audio || !toggle || !volume) return;
+  if (!audio || !musicControl || !toggle || !volume) return;
 
-  const STORAGE_KEYS = {
-    playing: 'siteMusicPlaying', // We might ignore this for auto-start, but keep for volume?
-    volume: 'siteMusicVolume'
-  };
+  const TRACK_TITLE = 'Kyuujitsuno Sugoshikakata';
+  const DEFAULT_VOLUME = 0.08;
+  const FALLBACK_VOLUME = 0.3;
+  const label = musicControl.querySelector('.music-label');
+  const percentDisplay = musicControl.querySelector('.music-percent');
+  const srLabel = toggle.querySelector('.sr-only');
 
-  // Defaults - Force volume to 0.3 initially or use saved if allowable, but user asked for "standard volume max 30%".
-  // I will set it to 0.3 by default. If the user had it higher, maybe we should respect it?
-  // "vorrei che il volume standard sia abbastanza basso (massimo 30%)" -> "I would like the standard volume to be quite low (max 30%)"
-  // I'll adhere to 0.3.
-  let startVolume = 0.08;
-  // If we want to remember volume across sessions:
-  // let savedVolume = parseFloat(localStorage.getItem(STORAGE_KEYS.volume));
-  // if (!Number.isNaN(savedVolume)) startVolume = savedVolume;
-  // However, specifically for the request "standard volume... max 30%", I'll cap it at 0.3 if we restore, or just set to 0.3.
-  // Let's set it to 0.3 to be safe and strictly follow "standard volume".
+  // Build the compact summary here so the player keeps one source of truth.
+  if (!musicControl.querySelector('.music-summary') && label) {
+    const summary = document.createElement('div');
+    const art = document.createElement('img');
+    const track = document.createElement('div');
+    const kicker = document.createElement('span');
 
-  audio.volume = startVolume;
-  audio.muted = false; // Ensure it's not muted (volume controls actual output)
+    summary.className = 'music-summary';
+    art.className = 'music-art';
+    art.src = 'https://whitenoiserecords.org/cdn/shop/products/kirinji-cherish_800x.jpg?v=1652516839';
+    art.alt = 'Kirinji - Cherish album cover';
+    art.loading = 'lazy';
+    track.className = 'music-track';
+    kicker.className = 'music-kicker';
+    kicker.textContent = 'now playing';
+
+    label.textContent = TRACK_TITLE;
+    label.parentNode.insertBefore(summary, label);
+    track.append(kicker, label);
+    summary.append(art, track);
+  }
+
+  audio.volume = DEFAULT_VOLUME;
+  audio.muted = false;
 
   function setToggleIcon(isPlaying) {
     const icon = toggle.querySelector('i');
-    if (!icon) return;
-    if (isPlaying) {
-      icon.classList.remove('fa-play');
-      icon.classList.add('fa-pause');
-      toggle.setAttribute('aria-pressed', 'true');
-      toggle.title = 'Pause background music';
-    } else {
-      icon.classList.remove('fa-pause');
-      icon.classList.add('fa-play');
-      toggle.setAttribute('aria-pressed', 'false');
-      toggle.title = 'Play background music';
+    if (icon) {
+      icon.classList.toggle('fa-play', !isPlaying);
+      icon.classList.toggle('fa-pause', isPlaying);
     }
-  }
 
-  // Volume percentage display
-  const percentDisplay = document.querySelector('.music-percent');
+    toggle.setAttribute('aria-pressed', String(isPlaying));
+    toggle.title = isPlaying ? 'Pause background music' : 'Play background music';
+    toggle.setAttribute('aria-label', toggle.title);
+    if (srLabel) srLabel.textContent = toggle.title;
+  }
 
   function updateVolumeDisplay() {
-    if (percentDisplay) {
-      percentDisplay.textContent = Math.round(audio.volume * 100) + '%';
-    }
+    const percent = Math.round(audio.volume * 100);
+    if (percentDisplay) percentDisplay.textContent = percent + '%';
+    volume.style.setProperty('--volume-percent', percent + '%');
+    volume.setAttribute('aria-valuetext', percent + '%');
   }
 
-  // Initialize UI (Not playing by default)
   setToggleIcon(false);
   volume.value = audio.volume;
   updateVolumeDisplay();
 
-  // Button toggles playback
   toggle.addEventListener('click', async () => {
     if (audio.paused) {
       try {
@@ -68,38 +75,30 @@
     }
   });
 
-  // Volume control
-  volume.addEventListener('input', (e) => {
-    const v = parseFloat(e.target.value);
-    audio.volume = isNaN(v) ? 0.3 : Math.min(1, Math.max(0, v));
+  volume.addEventListener('input', (event) => {
+    const nextVolume = parseFloat(event.target.value);
+    audio.volume = Number.isNaN(nextVolume) ? FALLBACK_VOLUME : Math.min(1, Math.max(0, nextVolume));
     updateVolumeDisplay();
-    // localStorage.setItem(STORAGE_KEYS.volume, audio.volume); // Optional: save volume preference
   });
 
-  // Keep UI in sync with audio events
   audio.addEventListener('play', () => setToggleIcon(true));
   audio.addEventListener('pause', () => setToggleIcon(false));
-  audio.addEventListener('ended', () => {
-    // Loop handled by HTML attribute, but just in case
-    setToggleIcon(false);
-  });
-  audio.addEventListener('error', (e) => {
-    console.error('Background audio error:', e, audio.error);
+  audio.addEventListener('ended', () => setToggleIcon(false));
+  audio.addEventListener('error', (event) => {
+    console.error('Background audio error:', event, audio.error);
   });
 
-  // Accessibility: space or M toggles music when focus is on body
-  document.addEventListener('keydown', (e) => {
-    if ((e.key === 'm' || e.key === 'M') && document.activeElement === document.body) {
+  // Keyboard shortcut: press M while the page itself has focus.
+  document.addEventListener('keydown', (event) => {
+    if ((event.key === 'm' || event.key === 'M') && document.activeElement === document.body) {
       toggle.click();
     }
   });
 
-  // Autoplay on first click/keydown anywhere on the document (modern browser compliant)
+  // Start playback on the first user interaction after the landing screen.
   const startAutoplay = () => {
     if (audio.paused) {
-      audio.play().then(() => {
-        setToggleIcon(true);
-      }).catch(err => {
+      audio.play().then(() => setToggleIcon(true)).catch((err) => {
         console.log('Autoplay deferred until active interaction:', err);
       });
     }

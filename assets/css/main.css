@@ -154,3 +154,118 @@
     font-weight: 500;
     text-align: left;
 }
+
+/* Compact music player: the cover remains visible and controls fade in on hover. */
+#musicControl {
+    align-items: stretch;
+    gap: 0;
+    min-width: 220px;
+    padding: 7px;
+    color: rgba(220, 242, 255, 0.78);
+    background: rgba(3, 16, 31, 0.72);
+    border: 1px solid rgba(0, 220, 248, 0.18);
+    border-radius: 13px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), inset 0 1px rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease,
+        background 0.35s ease, box-shadow 0.35s ease;
+}
+
+#musicControl:hover {
+    color: #00dcf8;
+    background: rgba(3, 20, 38, 0.9);
+    border-color: rgba(0, 220, 248, 0.42);
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.38), 0 0 22px rgba(0, 220, 248, 0.08);
+}
+
+.music-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 42px;
+}
+
+.music-art {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ef9c8f, #f4c4a4 48%, #42675d);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 4px 14px rgba(0, 0, 0, 0.34);
+}
+
+.music-track {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 2px;
+}
+
+.music-kicker {
+    color: rgba(220, 242, 255, 0.48);
+    font-family: 'Fira Code', monospace;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+}
+
+.music-label {
+    overflow: hidden;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+}
+
+.music-controls-row {
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: max-height 0.35s ease, opacity 0.3s ease, transform 0.35s ease, padding 0.35s ease;
+}
+
+#musicControl:hover .music-controls-row,
+#musicControl:focus-within .music-controls-row {
+    max-height: 31px;
+    padding-top: 8px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.music-volume {
+    width: 84px;
+    background: linear-gradient(to right, #00dcf8 var(--volume-percent, 8%), rgba(220, 242, 255, 0.2) var(--volume-percent, 8%));
+}
+
+.music-percent {
+    font-size: 9px;
+}
+
+@media (max-width: 600px) {
+    #musicControl {
+        bottom: 15px;
+        min-width: 205px;
+    }
+
+    #musicControl:hover .music-controls-row,
+    #musicControl:focus-within .music-controls-row {
+        max-height: 34px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #musicControl,
+    .music-controls-row,
+    .music-toggle,
+    .music-label {
+        transition-duration: 0.01ms !important;
+    }
+}
