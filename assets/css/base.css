@@ -16,6 +16,16 @@ body {
     padding: 20px;
 }
 
+/* The same blue gradient is retained when WebGL cannot render the canvas. */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--ps3-gradient-top, rgb(3.33 8.01 19.332)), var(--ps3-gradient-bottom, rgb(22.94 55.18 110.98)));
+}
+
 /* Full-screen PS3 XMB background canvas. Content layers remain above it. */
 #ps3-background {
     position: fixed;

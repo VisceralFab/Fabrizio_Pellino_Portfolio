@@ -116,7 +116,7 @@
       sizeVar: uloc(gl, ptProg, 'ptSizeVar'),
     };
 
-    function render(timeSec) {
+    function render(timeSec, reveal = 1) {
       const desiredCount = Math.max(1, settings.count | 0);
       if (desiredCount !== count) rebuildParticles(desiredCount);
 
@@ -129,7 +129,7 @@
       gl.uniform1f(ptU.time, timeSec);
       gl.uniform1f(ptU.flowSpeed, flow);
       gl.uniform1f(ptU.ratio, Math.max(1.0, Math.min(aspect, 2.0)) * 0.375);
-      gl.uniform1f(ptU.opacity, settings.opacity);
+      gl.uniform1f(ptU.opacity, settings.opacity * reveal);
       gl.uniform1f(ptU.sizeBase, settings.sizeBase);
       gl.uniform1f(ptU.sizeVar, settings.sizeVar);
       gl.bindVertexArray(vao);

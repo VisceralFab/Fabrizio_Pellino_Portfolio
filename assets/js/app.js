@@ -58,6 +58,7 @@ async function loadPage(addToHistory = true) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const html = await response.text();
+        window.siteMusic?.releaseVideos();
         appContainer.innerHTML = html;
 
         // Post-load logic
@@ -194,106 +195,12 @@ addressInput.addEventListener('keydown', (e) => {
 
 window.addEventListener('hashchange', () => loadPage(true));
 
-function enterPortfolio() {
-    const landingWrapper = document.getElementById('landing-wrapper');
-    const landingCenter = document.querySelector('.landing-center');
-    const globeTarget = document.getElementById('globe-target');
-    const landingHint = document.querySelector('.landing-hint');
-    const terminalWin = document.querySelector('.terminal-window');
-    const musicCtrl = document.getElementById('musicControl');
-
-    if (landingCenter) landingCenter.classList.add('fade-out');
-    if (globeTarget) globeTarget.classList.add('fade-out');
-    if (landingHint) landingHint.classList.add('fade-out');
-    if (musicCtrl) musicCtrl.classList.add('is-visible');
-
-    if (landingWrapper) {
-        setTimeout(() => {
-            landingWrapper.style.pointerEvents = 'none';
-        }, 800);
-    }
-
-    if (terminalWin) {
-        terminalWin.classList.add('is-visible');
-    }
-
-    // Trigger home typewriter animation on entrance
-    animateHomeKernel();
-
-    // Play site audio
-    const audio = document.getElementById('siteAudio');
-    if (audio) {
-        audio.play().then(() => {
-            const toggle = document.getElementById('musicToggle');
-            if (toggle) {
-                toggle.setAttribute('aria-pressed', 'true');
-                const icon = toggle.querySelector('i');
-                if (icon) icon.className = 'fa-solid fa-pause';
-            }
-        }).catch(err => {
-            console.log('Autoplay pending user action:', err);
-        });
-    }
-}
-
-function exitPortfolio() {
-    const landingWrapper = document.getElementById('landing-wrapper');
-    const landingCenter = document.querySelector('.landing-center');
-    const globeTarget = document.getElementById('globe-target');
-    const landingHint = document.querySelector('.landing-hint');
-    const terminalWin = document.querySelector('.terminal-window');
-    const musicCtrl = document.getElementById('musicControl');
-
-    if (landingCenter) landingCenter.classList.remove('fade-out');
-    if (globeTarget) globeTarget.classList.remove('fade-out');
-    if (landingHint) landingHint.classList.remove('fade-out');
-    if (musicCtrl) musicCtrl.classList.remove('is-visible');
-
-    if (landingWrapper) {
-        landingWrapper.style.pointerEvents = 'auto';
-    }
-
-    if (terminalWin) {
-        terminalWin.classList.remove('is-visible');
-    }
-
-    // Reset typewriter state so it can animate next time
-    isTypingHome = false;
-    const nameTextElement = document.querySelector('.name-text');
-    if (nameTextElement) {
-        nameTextElement.textContent = '';
-    }
-    const bioSection = document.querySelector('.bio-section');
-    const navSection = document.querySelector('.navigation-section');
-    if (bioSection) bioSection.style.opacity = '0';
-    if (navSection) navSection.style.opacity = '0';
-}
-
+// The introduction and window controls live in experience.js.
 document.addEventListener('DOMContentLoaded', () => {
-    // Reset to home on page load
-    window.location.hash = '#home';
+    if (!window.location.hash) {
+        window.history.replaceState(null, '', '#home');
+    }
     loadPage(true);
-
-    // Click anywhere on landing wrapper to continue (exactly like OutOfTune)
-    const landingWrapper = document.getElementById('landing-wrapper');
-    if (landingWrapper) {
-        landingWrapper.addEventListener('click', enterPortfolio);
-    }
-
-    // Continue button text hint click listener
-    const continueBtn = document.getElementById('continue-btn');
-    if (continueBtn) {
-        continueBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent duplicate trigger from bubbling
-            enterPortfolio();
-        });
-    }
-
-    // Close button interaction
-    const closeBtn = document.querySelector('.btn-close');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', exitPortfolio);
-    }
 });
 
 // ----- Image Zoom ("At a Glance") -----
@@ -538,36 +445,9 @@ function initMediaSlider() {
         slides.forEach((slide) => {
             const video = slide.querySelector('video');
             if (video) {
-                let wasMusicPlaying = false; // Track if music was playing before video started
-                
-                video.addEventListener('play', () => {
-                    const audio = document.getElementById('siteAudio');
-                    if (audio) {
-                        wasMusicPlaying = !audio.paused; // Store music state before pausing
-                        if (wasMusicPlaying) {
-                            audio.pause();
-                            // Update music toggle icon to play
-                            const musicToggle = document.querySelector('.music-toggle i');
-                            if (musicToggle) {
-                                musicToggle.className = 'fa-solid fa-play';
-                            }
-                        }
-                    }
-                });
-                
-                video.addEventListener('pause', () => {
-                    const audio = document.getElementById('siteAudio');
-                    if (audio && wasMusicPlaying) { // Only resume if music was playing before
-                        audio.play().catch(err => {
-                            console.log('Audio autoplay prevented:', err);
-                        });
-                        // Update music toggle icon to pause
-                        const musicToggle = document.querySelector('.music-toggle i');
-                        if (musicToggle) {
-                            musicToggle.className = 'fa-solid fa-pause';
-                        }
-                    }
-                });
+                video.addEventListener('play', () => window.siteMusic?.suspendForVideo(video));
+                video.addEventListener('pause', () => window.siteMusic?.releaseVideo(video));
+                video.addEventListener('ended', () => window.siteMusic?.releaseVideo(video));
             }
         });
         

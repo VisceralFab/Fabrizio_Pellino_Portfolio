@@ -11,6 +11,9 @@
   const label = musicControl.querySelector('.music-label');
   const percentDisplay = musicControl.querySelector('.music-percent');
   const srLabel = toggle.querySelector('.sr-only');
+  let enabled = false;
+  let resumeAfterVideo = false;
+  const activeVideos = new Set();
 
   // Build the compact summary here so the player keeps one source of truth.
   if (!musicControl.querySelector('.music-summary') && label) {
@@ -35,7 +38,63 @@
   }
 
   audio.volume = DEFAULT_VOLUME;
-  audio.muted = false;
+  audio.muted = true;
+
+  function syncPlayback() {
+    setToggleIcon(!audio.paused && !audio.muted);
+  }
+
+  function setEnabled(value) {
+    enabled = Boolean(value);
+    audio.muted = !enabled;
+    if (!enabled) {
+      resumeAfterVideo = false;
+      audio.pause();
+    }
+    syncPlayback();
+  }
+
+  async function play() {
+    if (!enabled) return;
+    if (activeVideos.size > 0) {
+      resumeAfterVideo = true;
+      return;
+    }
+    try {
+      await audio.play();
+      // A later "no"/pause may have happened while playback was starting.
+      if (!enabled || activeVideos.size > 0) audio.pause();
+    } catch (err) {
+      console.info('Music playback is unavailable or awaiting interaction:', err);
+    }
+    syncPlayback();
+  }
+
+  // All automatic playback goes through the visitor's explicit preference.
+  window.siteMusic = {
+    setEnabled,
+    play,
+    get enabled() { return enabled; },
+    suspendForVideo(video) {
+      if (activeVideos.size === 0) resumeAfterVideo = enabled && !audio.paused;
+      activeVideos.add(video);
+      audio.pause();
+    },
+    releaseVideo(video) {
+      if (!activeVideos.delete(video)) return;
+      if (activeVideos.size === 0 && resumeAfterVideo) {
+        resumeAfterVideo = false;
+        play();
+      }
+    },
+    releaseVideos() {
+      activeVideos.clear();
+      if (resumeAfterVideo) {
+        resumeAfterVideo = false;
+        play();
+      }
+    }
+  };
 
   function setToggleIcon(isPlaying) {
     const icon = toggle.querySelector('i');
@@ -55,23 +114,19 @@
     if (percentDisplay) percentDisplay.textContent = percent + '%';
     volume.style.setProperty('--volume-percent', percent + '%');
     volume.setAttribute('aria-valuetext', percent + '%');
+    volume.value = audio.volume;
   }
 
   setToggleIcon(false);
   volume.value = audio.volume;
   updateVolumeDisplay();
 
-  toggle.addEventListener('click', async () => {
-    if (audio.paused) {
-      try {
-        await audio.play();
-        setToggleIcon(true);
-      } catch (err) {
-        console.error('Playback failed:', err);
-      }
+  toggle.addEventListener('click', () => {
+    if (audio.paused || audio.muted) {
+      setEnabled(true);
+      play();
     } else {
-      audio.pause();
-      setToggleIcon(false);
+      setEnabled(false);
     }
   });
 
@@ -81,30 +136,24 @@
     updateVolumeDisplay();
   });
 
-  audio.addEventListener('play', () => setToggleIcon(true));
-  audio.addEventListener('pause', () => setToggleIcon(false));
-  audio.addEventListener('ended', () => setToggleIcon(false));
+  audio.addEventListener('play', syncPlayback);
+  audio.addEventListener('pause', syncPlayback);
+  audio.addEventListener('ended', syncPlayback);
+  audio.addEventListener('volumechange', () => {
+    updateVolumeDisplay();
+    syncPlayback();
+  });
   audio.addEventListener('error', (event) => {
     console.error('Background audio error:', event, audio.error);
   });
 
   // Keyboard shortcut: press M while the page itself has focus.
   document.addEventListener('keydown', (event) => {
-    if ((event.key === 'm' || event.key === 'M') && document.activeElement === document.body) {
+    if (!event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey &&
+        (event.key === 'm' || event.key === 'M') && document.activeElement === document.body &&
+        musicControl.classList.contains('is-visible')) {
       toggle.click();
     }
   });
 
-  // Start playback on the first user interaction after the landing screen.
-  const startAutoplay = () => {
-    if (audio.paused) {
-      audio.play().then(() => setToggleIcon(true)).catch((err) => {
-        console.log('Autoplay deferred until active interaction:', err);
-      });
-    }
-    document.removeEventListener('click', startAutoplay);
-    document.removeEventListener('keydown', startAutoplay);
-  };
-  document.addEventListener('click', startAutoplay);
-  document.addEventListener('keydown', startAutoplay);
 })();

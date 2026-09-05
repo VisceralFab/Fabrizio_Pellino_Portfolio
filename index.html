@@ -9,33 +9,44 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Grotesk:wght@300;400;500;700&family=Fira+Code:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 
 <body>
     <!-- PlayStation 3 XMB-inspired animated background -->
     <canvas id="ps3-background" aria-hidden="true"></canvas>
 
-    <!-- OutOfTune Layout Elements -->
-    <div id="landing-wrapper">
-        <div id="globe-target"></div>
-        
-        <div class="landing-center">
-            <h1 class="landing-title">Fabrizio Pellino</h1>
-            <p class="landing-subtitle">UI-UX Designer — built for product, usability & visual.</p>
-        </div>
-        
-        <p class="landing-hint" id="continue-btn">Click or tap anywhere to continue</p>
+    <!-- Two-step introduction over the PS3 gradient. -->
+    <div id="landing-wrapper" role="dialog" aria-modal="true" aria-labelledby="intro-title" data-step="welcome" lang="en" tabindex="-1">
+        <section class="entry-panel is-active" id="intro-step">
+            <h1 class="entry-title" id="intro-title">Welcome in the official design portfolio of <span>Fabrizio Pellino</span></h1>
+            <div class="entry-body">
+                <p>In here, you can find projects spacing between UI-UX design and product design.</p>
+                <p>Hope you have a good time.</p>
+            </div>
+            <button class="landing-hint" id="continue-btn" type="button">Click or tap anywhere to continue <span aria-hidden="true">↵</span></button>
+        </section>
+        <section class="entry-panel" id="music-step" aria-hidden="true" inert>
+            <h2 class="entry-title" id="music-question" tabindex="-1">Would you like to have a background music during the experience?</h2>
+            <div class="entry-choices" role="group" aria-labelledby="music-question">
+                <button class="entry-choice" type="button" data-music-choice="yes" aria-pressed="false">yes</button>
+                <button class="entry-choice" type="button" data-music-choice="no" aria-pressed="false">no</button>
+            </div>
+            <div class="entry-enter-slot">
+                <button class="entry-enter" id="enter-btn" type="button" hidden>Have fun!</button>
+            </div>
+        </section>
     </div>
 
+    <button id="reopen-portfolio" class="reopen-portfolio" type="button" hidden>Open portfolio <span aria-hidden="true">↗</span></button>
+
     <!-- Main Site Content -->
-    <div class="terminal-window">
+    <div class="terminal-window" role="region" aria-label="Portfolio" aria-hidden="true" inert>
         <!-- Terminal Header -->
         <div class="terminal-header">
             <div class="terminal-buttons">
-                <span class="btn-close"></span>
-                <span class="btn-minimize"></span>
-                <span class="btn-maximize"></span>
+                <button class="btn-close" type="button" aria-label="Close portfolio" title="Close portfolio"></button>
+                <button class="btn-minimize" type="button" aria-label="Minimize portfolio" title="Minimize portfolio" aria-expanded="true" aria-controls="terminal-content"></button>
+                <button class="btn-maximize" type="button" aria-label="Maximize portfolio" title="Maximize portfolio" aria-pressed="false"></button>
             </div>
             <div class="terminal-title">
                 Fabrizio_Pellino@portfolio:~/home
@@ -43,6 +54,7 @@
             <div class="terminal-session">bash:~-login</div>
         </div>
 
+        <div class="terminal-content" id="terminal-content">
         <!-- Navigation Bar -->
         <div class="terminal-navbar">
             <button class="nav-arrow" id="nav-back" title="Back" disabled>
@@ -69,15 +81,16 @@
                 <!-- Content will be loaded dynamically -->
             </div>
         </div>
+        </div>
     </div>
 
-    <!-- Background audio -->
+    <!-- Background audio: playback is enabled only by an explicit choice. -->
     <audio id="siteAudio" preload="auto" loop playsinline>
         <source src="assets/media/Killer%20Tune%20Kills%20Me%20-%20Kirinji.flac" type="audio/flac">
         Your browser does not support the audio element.
     </audio>
 
-    <div id="musicControl" aria-label="Background music control" title="Background music">
+    <div id="musicControl" aria-label="Background music control" title="Background music" inert>
         <span class="music-label">Kyuujitsuno Sugoshikakata</span>
         <div class="music-controls-row">
             <button id="musicToggle" class="music-toggle" title="Toggle background music" aria-pressed="false">
@@ -98,9 +111,9 @@
     <script src="assets/js/ps3/spline.js"></script>
     <script src="assets/js/ps3/particles.js"></script>
     <script src="assets/js/ps3-background.js"></script>
-    <script src="assets/js/sphere.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/audio.js"></script>
+    <script src="assets/js/experience.js"></script>
 </body>
 
 </html>

@@ -318,8 +318,7 @@
       window.__PS3_REVERSE_STATE = state;
     }
 
-    function render(timeSec) {
-      updateSplineTexture(timeSec);
+    function render(timeSec, { waveOpacity = 1, backgroundBrightness = 1 } = {}) {
       const bgGradient = resolveBackgroundGradient(settings);
 
       gl.disable(gl.DEPTH_TEST);
@@ -327,12 +326,18 @@
 
       gl.useProgram(bgProg);
       gl.bindVertexArray(bgVAO);
-      gl.uniform3f(bgU.colorStart, bgGradient.startRgb[0], bgGradient.startRgb[1], bgGradient.startRgb[2]);
-      gl.uniform3f(bgU.colorEnd, bgGradient.endRgb[0], bgGradient.endRgb[1], bgGradient.endRgb[2]);
+      gl.uniform3f(bgU.colorStart, ...bgGradient.startRgb.map(value => value * backgroundBrightness));
+      gl.uniform3f(bgU.colorEnd, ...bgGradient.endRgb.map(value => value * backgroundBrightness));
       gl.uniform2f(bgU.dir, bgGradient.dir[0], bgGradient.dir[1]);
       gl.uniform1f(bgU.tMin, bgGradient.tMin);
       gl.uniform1f(bgU.tSpan, bgGradient.tSpan);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+      if (waveOpacity <= 0) {
+        gl.bindVertexArray(null);
+        return;
+      }
+      updateSplineTexture(timeSec);
 
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -361,7 +366,7 @@
       gl.uniform1f(waveU.ffdYAmp, settings.ffdYAmp);
       gl.uniform1f(waveU.ffdZAmp, settings.ffdZAmp);
       gl.uniform1f(waveU.zDetailScale, settings.zDetailScale);
-      gl.uniform1f(waveU.opacity, settings.opacity);
+      gl.uniform1f(waveU.opacity, settings.opacity * waveOpacity);
       gl.uniform1f(waveU.brightness, settings.brightness);
       gl.uniform1f(waveU.fresnelPower, settings.fresnelPower);
       gl.uniform1f(waveU.fresnelScale, settings.fresnelScale);

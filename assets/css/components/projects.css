@@ -66,12 +66,13 @@
 
 .project-detail-content {
     display: grid;
-    grid-template-columns: 1fr 280px;
+    grid-template-columns: minmax(0, 1fr) 280px;
     gap: 40px;
 }
 
 .project-main {
     flex: 1;
+    min-width: 0;
 }
 
 .project-image {
@@ -605,4 +606,11 @@
     line-height: 1.4;
     text-align: center;
     margin: 0;
+}
+
+/* Keep project media in proportion to the text, including maximized windows. */
+.project-main .project-image img,
+.project-main .project-video video {
+    max-height: min(520px, 60dvh);
+    object-fit: contain;
 }

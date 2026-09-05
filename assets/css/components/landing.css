@@ -1,229 +1,184 @@
-/* Cyberdeck Landing Screen Styling */
-
 :root {
-    --bg-dark: #000714; /* Deep rich midnight shadow blue from moodboard/wallpaper */
-    --primary: #e6f7ff; /* Crisp clean ice-white highlight */
-    --accent: #00dcf8;  /* Glowing backlighting cyan */
+    --bg-dark: #000714;
+    --primary: #e6f7ff;
+    --accent: #00dcf8;
     --accent-glow: rgba(0, 220, 248, 0.25);
-    --text-main: #dcf2ff; /* Ice-blue text */
-    --text-muted: #7496b0; /* Steel-blue muted text */
+    --text-main: #dcf2ff;
+    --text-muted: #7496b0;
+    --entry-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 body {
-    background: var(--bg-dark) !important;
+    background: var(--bg-dark);
     overflow: hidden;
 }
 
-/* Landing wrapper container */
 #landing-wrapper {
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: 10;
-    pointer-events: auto;
-    transition: opacity 1s ease;
+    z-index: 20;
+    display: grid;
+    place-items: center;
+    padding: 32px 24px;
+    overflow-y: auto;
+    background: transparent;
+    cursor: pointer;
+    transition: opacity 900ms var(--entry-ease), filter 900ms var(--entry-ease), visibility 0s 900ms;
 }
 
-/* Sphere (Left column - exactly matching OutOfTune layout with ultrawide/4K disappearance fix) */
-#globe-target {
-    position: fixed;
-    left: max(-15vw, -240px); /* Capped offset prevents sphere from disappearing completely on 21:9 / 4K displays */
-    top: 50%;
-    transform: translateY(-50%);
-    width: 56vw;
-    height: 56vw;
-    max-width: 500px;
-    max-height: 500px;
-    min-width: 340px;
-    min-height: 340px;
-    z-index: 1;
-    opacity: 0.55;
+#landing-wrapper[data-step="music"] { cursor: default; }
+
+/* Programmatic focus on reading surfaces must not draw a text-sized box.
+   Interactive buttons retain their visible keyboard focus indicators. */
+#landing-wrapper:focus,
+.entry-title:focus { outline: none; }
+
+#landing-wrapper.is-dismissed {
+    opacity: 0;
+    filter: blur(6px);
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 1s ease, transform 1s ease;
 }
 
-/* Left Column Overlapping Sphere (OutOfTune layout) */
-.landing-center {
-    position: absolute;
-    left: 24px;
-    top: 50%;
-    transform: translateY(-50%);
-    text-align: left;
-    z-index: 5;
-    max-width: 540px;
-    width: 90%;
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+.entry-panel {
+    grid-area: 1 / 1;
+    width: min(100%, 560px);
+    text-align: center;
+    color: var(--text-main);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px);
+    pointer-events: none;
+    transition: opacity 550ms var(--entry-ease), transform 650ms var(--entry-ease), visibility 0s 550ms;
 }
 
-.landing-title {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: clamp(1.8rem, 4.5vw, 2.8rem); /* Sleek, elegant single-row size scale */
-    font-weight: 800; /* Apple-style extra bold display weight */
-    margin: 0;
-    margin-left: -3px; /* Micro optical alignment adjustment to align the vertical stem of F perfectly with U */
-    line-height: 1.15;
-    letter-spacing: -0.03em; /* Tight letter spacing is Apple's signature hero display look */
-    cursor: default;
-    user-select: none;
-    background: linear-gradient(90deg,
-            var(--primary) 0%,
-            var(--primary) 38%,
-            var(--accent) 50%,
-            var(--primary) 62%,
-            var(--primary) 100%);
-    background-size: 300% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: wave-effect 6s linear infinite, titlePulse 4s ease-in-out infinite;
-    text-shadow:
-        0 0 16px rgba(0, 220, 248, 0.28),
-        0 0 32px rgba(0, 220, 248, 0.12);
+.entry-panel.is-active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+    transition-delay: 150ms, 150ms, 0s;
 }
 
-@keyframes wave-effect {
-    0% {
-        background-position: 200% 0;
-    }
-    100% {
-        background-position: -100% 0;
-    }
-}
-
-@keyframes titlePulse {
-    0%, 100% {
-        filter: drop-shadow(0 0 6px rgba(0, 220, 248, 0.18));
-    }
-    50% {
-        filter: drop-shadow(0 0 14px rgba(0, 220, 248, 0.35)) drop-shadow(0 0 6px rgba(230, 247, 255, 0.18));
-    }
-}
-
-.landing-subtitle {
+.entry-title {
     font-family: 'Inter', sans-serif;
-    color: rgba(220, 242, 255, 0.9); /* Extremely legible light-ice color tint */
-    font-size: clamp(13px, 1.4vw, 15px);
+    font-size: clamp(22px, 3.2vw, 32px);
     font-weight: 400;
-    max-width: 440px;
-    margin: 18px 0 0;
-    line-height: 1.6;
-    letter-spacing: 0.2px;
-    text-shadow: 
-        0 2px 8px rgba(0, 7, 20, 0.95), /* Deep dark shadow helps text stand out cleanly over 3D sphere wireframes */
-        0 0 4px rgba(0, 7, 20, 0.9);
+    line-height: 1.45;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+    color: var(--primary);
 }
+
+.entry-title span { font-weight: 600; }
+
+.entry-body {
+    max-width: 470px;
+    margin: 24px auto 0;
+    font-size: clamp(12px, 1.3vw, 14px);
+    line-height: 1.9;
+    color: rgba(220, 242, 255, 0.78);
+    text-wrap: pretty;
+}
+
+.entry-body p + p { margin-top: 14px; }
+
+#intro-step .entry-title { animation: entry-arrive 800ms var(--entry-ease) both; }
+#intro-step .entry-body { animation: entry-arrive 800ms 180ms var(--entry-ease) both; }
 
 .landing-hint {
-    position: absolute;
-    bottom: 96px;
+    margin-top: 42px;
+    padding: 12px 6px;
+    border: 0;
+    background: transparent;
+    color: var(--primary);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(12px, 1.4vw, 14px);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    line-height: 1.7;
+    cursor: pointer;
+    animation: pulseHint 2.4s 700ms ease-in-out infinite;
+}
+
+.landing-hint span { margin-left: 8px; color: var(--accent); }
+
+.entry-choices {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 32px;
+}
+
+.entry-choice,
+.entry-enter,
+.reopen-portfolio {
+    min-height: 46px;
+    border: 1px solid rgba(220, 242, 255, 0.35);
+    border-radius: 8px;
+    padding: 12px 30px;
+    background: rgba(8, 28, 53, 0.3);
+    color: var(--primary);
+    font: 500 14px 'Fira Code', monospace;
+    cursor: pointer;
+    transition: color 200ms ease, background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.entry-choice { min-width: 112px; }
+.entry-choice:hover { border-color: var(--accent); background: rgba(0, 220, 248, 0.1); }
+.entry-choice[aria-pressed="true"] {
+    background: var(--primary);
+    color: #081c35;
+    border-color: var(--primary);
+    box-shadow: 0 0 24px rgba(0, 220, 248, 0.12);
+}
+
+.entry-enter-slot { min-height: 86px; padding-top: 28px; }
+.entry-enter {
+    min-width: 200px;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #031426;
+    font-size: 15px;
+    box-shadow: 0 6px 30px rgba(0, 220, 248, 0.15);
+    animation: entry-arrive 450ms var(--entry-ease) both;
+}
+.entry-enter:hover { background: var(--primary); border-color: var(--primary); }
+
+.reopen-portfolio {
+    position: fixed;
+    z-index: 5;
+    top: 28px;
     left: 50%;
     transform: translateX(-50%);
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 9px; /* Very small, premium, and chic scale */
-    font-weight: 500;
-    letter-spacing: 0.4em; /* Wide editorial tracking is the signature of high-end design studios */
-    color: rgba(220, 242, 255, 0.45); /* Soft, whispering ice-blue */
-    text-shadow: 0 0 8px rgba(0, 220, 248, 0.12);
-    cursor: pointer;
-    opacity: 0;
-    animation: pulseHint 2.2s infinite ease-in-out, disclaimerHintIn 0.85s ease forwards;
-    animation-delay: 0.4s;
-    user-select: none;
-    text-transform: uppercase;
-    text-align: center;
-    z-index: 15;
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    backdrop-filter: blur(16px);
+}
+.reopen-portfolio:hover { border-color: var(--accent); }
+
+.landing-hint:focus-visible,
+.entry-choice:focus-visible,
+.entry-enter:focus-visible,
+.reopen-portfolio:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 5px;
 }
 
-.landing-hint.fade-out {
-    opacity: 0 !important;
-    pointer-events: none;
-    transform: translateX(-50%) translateY(20px) scale(0.95);
+@keyframes entry-arrive {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
 }
-
-@keyframes disclaimerHintIn {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(12px);
-    }
-    to {
-        opacity: 0.85;
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
 @keyframes pulseHint {
-    0%, 100% {
-        opacity: 0.45;
-        text-shadow: 0 0 6px var(--accent-glow);
-    }
-    50% {
-        opacity: 0.95;
-        text-shadow: 0 0 16px var(--accent);
-    }
+    0%, 100% { opacity: 0.58; text-shadow: 0 0 6px var(--accent-glow); }
+    50% { opacity: 1; text-shadow: 0 0 16px var(--accent-glow); }
 }
 
-/* Transitions: Fade-out landing items when entering */
-.landing-center.fade-out {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(-70%) scale(0.95);
+@media (max-width: 600px) {
+    #landing-wrapper { padding: 28px 24px; }
+    .landing-hint { margin-top: 28px; }
 }
 
-/* Minimize / Hide left sphere slightly when focused on terminal */
-#globe-target.fade-out {
-    opacity: 0.15;
-    transform: translateY(-50%) scale(0.85);
-}
-
-/* Terminal scale-in behavior */
-.terminal-window {
-    opacity: 0;
-    pointer-events: none;
-    transform: scale(0.93) translateY(20px);
-    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.terminal-window.is-visible {
-    opacity: 1;
-    pointer-events: auto;
-    transform: scale(1) translateY(0);
-    animation: popup 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* ─────────────────────────────────────────────────────
-   MOBILE & TABLET RESPONSIVENESS
-───────────────────────────────────────────────────── */
-@media (max-width: 900px) {
-    #landing-wrapper {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 30px;
-    }
-
-    /* Completely hide globe on mobile/tablet just like OutOfTune */
-    #globe-target {
-        display: none;
-    }
-
-    .landing-center {
-        position: relative;
-        left: auto;
-        top: auto;
-        transform: none;
-        width: 100%;
-        text-align: center;
-    }
-
-    .landing-subtitle {
-        text-align: center;
-        margin: 18px auto 0;
-    }
-
-    .landing-center.fade-out {
-        transform: translateY(-30px) scale(0.95);
-    }
+@media (prefers-reduced-motion: reduce) {
+    #landing-wrapper, .entry-panel { transition: none; }
+    #intro-step .entry-title, #intro-step .entry-body, .landing-hint, .entry-enter { animation: none; }
 }
