@@ -6,7 +6,10 @@
   if (!audio || !musicControl || !toggle || !volume) return;
 
   const TRACK_TITLE = 'Kyuujitsuno Sugoshikakata';
-  const DEFAULT_VOLUME = 0.08;
+  // The UI is a comfortable site-volume scale: even 100% is master-capped
+  // so the source track can never reach the browser's full output volume.
+  const DEFAULT_VOLUME = 0.06;
+  const MAX_OUTPUT_VOLUME = 0.18;
   const FALLBACK_VOLUME = 0.3;
   const label = musicControl.querySelector('.music-label');
   const percentDisplay = musicControl.querySelector('.music-percent');
@@ -14,6 +17,8 @@
   let enabled = false;
   let resumeAfterVideo = false;
   const activeVideos = new Set();
+  let volumeFadeFrame = null;
+  let selectedVolume = DEFAULT_VOLUME;
 
   // Build the compact summary here so the player keeps one source of truth.
   if (!musicControl.querySelector('.music-summary') && label) {
@@ -29,7 +34,7 @@
     art.loading = 'lazy';
     track.className = 'music-track';
     kicker.className = 'music-kicker';
-    kicker.textContent = 'now playing';
+    kicker.textContent = 'Kirinji';
 
     label.textContent = TRACK_TITLE;
     label.parentNode.insertBefore(summary, label);
@@ -37,7 +42,7 @@
     summary.append(art, track);
   }
 
-  audio.volume = DEFAULT_VOLUME;
+  audio.volume = DEFAULT_VOLUME * MAX_OUTPUT_VOLUME;
   audio.muted = true;
 
   function syncPlayback() {
@@ -70,10 +75,29 @@
     syncPlayback();
   }
 
+  function playWithFade() {
+    if (!enabled) return;
+    if (volumeFadeFrame) cancelAnimationFrame(volumeFadeFrame);
+    const targetVolume = selectedVolume * MAX_OUTPUT_VOLUME;
+    audio.volume = 0;
+    play();
+
+    const duration = 900;
+    const startedAt = performance.now();
+    const fade = (now) => {
+      const progress = Math.min((now - startedAt) / duration, 1);
+      audio.volume = targetVolume * progress;
+      if (progress < 1) volumeFadeFrame = requestAnimationFrame(fade);
+      else volumeFadeFrame = null;
+    };
+    volumeFadeFrame = requestAnimationFrame(fade);
+  }
+
   // All automatic playback goes through the visitor's explicit preference.
   window.siteMusic = {
     setEnabled,
     play,
+    playWithFade,
     get enabled() { return enabled; },
     suspendForVideo(video) {
       if (activeVideos.size === 0) resumeAfterVideo = enabled && !audio.paused;
@@ -110,15 +134,15 @@
   }
 
   function updateVolumeDisplay() {
-    const percent = Math.round(audio.volume * 100);
+    const percent = Math.round(selectedVolume * 100);
     if (percentDisplay) percentDisplay.textContent = percent + '%';
     volume.style.setProperty('--volume-percent', percent + '%');
     volume.setAttribute('aria-valuetext', percent + '%');
-    volume.value = audio.volume;
+    volume.value = selectedVolume;
   }
 
   setToggleIcon(false);
-  volume.value = audio.volume;
+  volume.value = selectedVolume;
   updateVolumeDisplay();
 
   toggle.addEventListener('click', () => {
@@ -132,7 +156,8 @@
 
   volume.addEventListener('input', (event) => {
     const nextVolume = parseFloat(event.target.value);
-    audio.volume = Number.isNaN(nextVolume) ? FALLBACK_VOLUME : Math.min(1, Math.max(0, nextVolume));
+    selectedVolume = Number.isNaN(nextVolume) ? FALLBACK_VOLUME : Math.min(1, Math.max(0, nextVolume));
+    audio.volume = selectedVolume * MAX_OUTPUT_VOLUME;
     updateVolumeDisplay();
   });
 

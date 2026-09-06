@@ -6,8 +6,8 @@
     width: 95%;
     max-width: 1200px;
     background: rgba(10, 12, 16, 0.76); /* Translucent dark charcoal */
-    backdrop-filter: blur(25px) saturate(140%); /* macOS Glassmorphism */
-    -webkit-backdrop-filter: blur(25px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(120%); /* Lighter compositing while moving the window */
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
     border-radius: 16px; /* Smooth Apple rounded corners */
     box-shadow:
         0 0 80px rgba(0, 212, 212, 0.08),
@@ -209,31 +209,31 @@
 .terminal-window,
 .terminal-window.scroll-mode {
     position: fixed;
-    --window-height: min(960px, calc(100dvh - 128px));
-    top: max(16px, calc((100dvh - 96px - var(--window-height)) / 2));
+    top: 50%;
     left: 50%;
     display: flex;
     flex-direction: column;
-    width: min(1440px, calc(100vw - clamp(24px, 8vw, 160px)));
-    height: var(--window-height);
-    max-height: none;
+    width: var(--terminal-width);
+    height: var(--terminal-height);
+    max-height: 700px;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateX(-50%) translateY(18px) scale(0.97);
-    transform-origin: top center;
-    translate: var(--window-x, 0px) var(--window-y, 0px);
-    transition: opacity 650ms var(--entry-ease), transform 750ms var(--entry-ease),
-        height 600ms var(--entry-ease), width 600ms var(--entry-ease),
-        top 600ms var(--entry-ease), left 600ms var(--entry-ease),
-        border-radius 600ms ease, visibility 0s 750ms;
+    transform: translate(-50%, -50%) translateY(18px) scale(0.97);
+    transform-origin: center;
+    contain: layout paint;
+    will-change: transform, width, height;
+    transition: opacity 280ms var(--entry-ease), transform 360ms var(--entry-ease),
+        height 300ms var(--entry-ease), width 300ms var(--entry-ease),
+        top 300ms var(--entry-ease), left 300ms var(--entry-ease),
+        border-radius 300ms ease, visibility 0s 360ms;
 }
 
 .terminal-window.is-visible {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateX(-50%) rotate(var(--window-tilt, 0deg)) skewX(var(--window-skew, 0deg));
+    transform: translate(-50%, -50%);
     transition-delay: 0s;
 }
 
@@ -296,6 +296,32 @@
     transform: none;
     translate: none;
 }
+
+.terminal-window:not(.is-maximized) {
+    resize: both;
+    min-width: 420px;
+    min-height: 360px;
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px);
+}
+
+.terminal-window.is-user-positioned {
+    transition: opacity 280ms var(--entry-ease), visibility 0s;
+}
+
+.terminal-header { cursor: grab; }
+.terminal-header:active { cursor: grabbing; }
+.terminal-header button { cursor: pointer; }
+
+/* The About page is a single overview: give it room instead of a nested scrollbar. */
+.terminal-window.is-about:not(.is-maximized) {
+    height: min(78dvh, calc(100dvh - 150px), 760px);
+    max-height: 760px;
+}
+.terminal-window.is-about .terminal-body {
+    overflow-y: hidden;
+    padding-block: 22px;
+}
 .terminal-window.is-maximized:not(.is-minimized) .terminal-content {
     padding-bottom: 110px;
 }
@@ -345,11 +371,16 @@
 /* Responsive - Mobile */
 @media (max-width: 600px) {
     .terminal-window, .terminal-window.scroll-mode {
-        top: 16px;
-        width: calc(100vw - 24px);
-        height: calc(100dvh - 132px);
+        top: 50%;
+        width: var(--terminal-width);
+        height: var(--terminal-height);
     }
     .terminal-window.is-minimized { height: 50px; }
+    .terminal-window.is-about:not(.is-maximized) {
+        height: var(--terminal-height);
+        max-height: 440px;
+    }
+    .terminal-window.is-about .terminal-body { overflow-y: auto; }
     .terminal-window.is-maximized:not(.is-minimized) {
         top: 0;
         width: 100vw;

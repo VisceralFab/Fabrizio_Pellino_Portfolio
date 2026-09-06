@@ -3,8 +3,6 @@
     const landing = document.getElementById('landing-wrapper');
     const intro = document.getElementById('intro-step');
     const musicStep = document.getElementById('music-step');
-    const continueButton = document.getElementById('continue-btn');
-    const enterButton = document.getElementById('enter-btn');
     const choices = [...document.querySelectorAll('[data-music-choice]')];
     const portfolio = document.querySelector('.terminal-window');
     const content = document.getElementById('terminal-content');
@@ -12,22 +10,42 @@
     const minimizeButton = document.querySelector('.btn-minimize');
     const maximizeButton = document.querySelector('.btn-maximize');
     const reopenButton = document.getElementById('reopen-portfolio');
+    const resetWindowButton = document.getElementById('reset-window-size');
     const player = document.getElementById('musicControl');
-    let step = 'welcome';
-    let musicChoice = null;
+    let step = 'music';
+    let welcomeTimer;
+    let musicChoice = false;
+    let dragState = null;
+    let hasUserAdjustedWindow = false;
 
-    function showMusicChoice() {
-        if (step !== 'welcome') return;
-        step = 'music';
+    function showWindowReset() {
+        if (hasUserAdjustedWindow) resetWindowButton.classList.add('is-visible');
+    }
+
+    function resetWindowSize() {
+        portfolio.classList.remove('is-user-positioned');
+        portfolio.style.removeProperty('top');
+        portfolio.style.removeProperty('left');
+        portfolio.style.removeProperty('width');
+        portfolio.style.removeProperty('height');
+        portfolio.style.removeProperty('transform');
+        hasUserAdjustedWindow = false;
+        resetWindowButton.classList.remove('is-visible');
+    }
+
+    function showWelcome() {
+        if (step !== 'music') return;
+        step = 'welcome';
         landing.dataset.step = step;
-        landing.setAttribute('aria-labelledby', 'music-question');
-        intro.classList.remove('is-active');
-        intro.inert = true;
-        intro.setAttribute('aria-hidden', 'true');
-        musicStep.inert = false;
-        musicStep.removeAttribute('aria-hidden');
-        musicStep.classList.add('is-active');
-        document.getElementById('music-question').focus({ preventScroll: true });
+        landing.setAttribute('aria-labelledby', 'intro-title');
+        musicStep.classList.remove('is-active');
+        musicStep.inert = true;
+        musicStep.setAttribute('aria-hidden', 'true');
+        intro.inert = false;
+        intro.removeAttribute('aria-hidden');
+        intro.classList.add('is-active');
+        document.getElementById('intro-title').focus({ preventScroll: true });
+        welcomeTimer = window.setTimeout(enterPortfolio, 5000);
     }
 
     function setMinimized(minimized) {
@@ -42,7 +60,11 @@
     }
 
     function setMaximized(maximized) {
+        if (maximized) resetWindowSize();
         portfolio.classList.toggle('is-maximized', maximized);
+        player.classList.toggle('is-suppressed', maximized);
+        player.inert = maximized;
+        if (maximized) resetWindowButton.classList.remove('is-visible');
         maximizeButton.setAttribute('aria-pressed', String(maximized));
         maximizeButton.setAttribute('aria-label', maximized ? 'Restore window size' : 'Maximize portfolio');
         maximizeButton.title = maximizeButton.getAttribute('aria-label');
@@ -63,7 +85,8 @@
     }
 
     function enterPortfolio() {
-        if (step !== 'music' || musicChoice === null) return;
+        if (step !== 'welcome') return;
+        window.clearTimeout(welcomeTimer);
         step = 'entered';
         landing.dataset.step = step;
         landing.inert = true;
@@ -74,31 +97,22 @@
         player.inert = false;
         player.classList.add('is-visible');
         window.siteMusic?.setEnabled(musicChoice);
-        window.siteMusic?.play();
+        if (musicChoice) window.siteMusic?.playWithFade();
         openPortfolio();
         animateHomeKernel();
     }
 
-    landing.addEventListener('click', showMusicChoice);
-    continueButton.addEventListener('click', showMusicChoice);
     choices.forEach(button => {
         button.addEventListener('click', () => {
             if (step !== 'music') return;
             musicChoice = button.dataset.musicChoice === 'yes';
             choices.forEach(choice => choice.setAttribute('aria-pressed', String(choice === button)));
-            enterButton.hidden = false;
+            showWelcome();
         });
     });
-    enterButton.addEventListener('click', enterPortfolio);
 
     // Keep keyboard navigation inside the active introduction screen.
     landing.addEventListener('keydown', event => {
-        if (step === 'welcome' && event.target === landing &&
-            (event.key === 'Enter' || event.key === ' ')) {
-            event.preventDefault();
-            showMusicChoice();
-            return;
-        }
         if (event.key !== 'Tab' || step === 'entered') return;
         const activePanel = step === 'welcome' ? intro : musicStep;
         const buttons = [...activePanel.querySelectorAll('button:not([hidden])')];
@@ -142,11 +156,40 @@
             setMaximized(false);
         }
     });
-    portfolio.addEventListener('portfolio:restore-request', () => {
-        if (step !== 'entered') return;
-        setMinimized(false);
-        setMaximized(false);
-        if (!portfolio.classList.contains('is-visible')) openPortfolio();
+    resetWindowButton.addEventListener('click', resetWindowSize);
+
+    document.querySelector('.terminal-header').addEventListener('pointerdown', event => {
+        if (event.button !== 0 || event.target.closest('button') || portfolio.classList.contains('is-maximized')) return;
+        const bounds = portfolio.getBoundingClientRect();
+        hasUserAdjustedWindow = true;
+        portfolio.classList.add('is-user-positioned');
+        portfolio.style.left = `${bounds.left}px`;
+        portfolio.style.top = `${bounds.top}px`;
+        portfolio.style.width = `${bounds.width}px`;
+        portfolio.style.height = `${bounds.height}px`;
+        portfolio.style.transform = 'none';
+        dragState = { offsetX: event.clientX - bounds.left, offsetY: event.clientY - bounds.top };
+        event.currentTarget.setPointerCapture(event.pointerId);
+        event.preventDefault();
     });
+    document.querySelector('.terminal-header').addEventListener('pointermove', event => {
+        if (!dragState) return;
+        portfolio.style.left = `${event.clientX - dragState.offsetX}px`;
+        portfolio.style.top = `${event.clientY - dragState.offsetY}px`;
+    });
+    document.querySelector('.terminal-header').addEventListener('pointerup', event => {
+        if (!dragState) return;
+        dragState = null;
+        event.currentTarget.releasePointerCapture(event.pointerId);
+        showWindowReset();
+    });
+    portfolio.addEventListener('pointerdown', event => {
+        if (portfolio.classList.contains('is-maximized')) return;
+        const bounds = portfolio.getBoundingClientRect();
+        if (event.clientX >= bounds.right - 24 && event.clientY >= bounds.bottom - 24) {
+            hasUserAdjustedWindow = true;
+        }
+    });
+    new ResizeObserver(() => showWindowReset()).observe(portfolio);
     landing.focus({ preventScroll: true });
 })();

@@ -6,6 +6,9 @@
     --text-main: #dcf2ff;
     --text-muted: #7496b0;
     --entry-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --terminal-top: clamp(20px, 7vh, 70px);
+    --terminal-width: min(74vw, 1180px);
+    --terminal-height: min(68dvh, calc(100dvh - 170px), 680px);
 }
 
 body {
@@ -70,6 +73,14 @@ body {
     color: var(--primary);
 }
 
+.entry-eyebrow {
+    margin: 0 0 14px;
+    color: var(--accent);
+    font: 500 12px 'Fira Code', monospace;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
 .entry-title span { font-weight: 600; }
 
 .entry-body {
@@ -83,8 +94,8 @@ body {
 
 .entry-body p + p { margin-top: 14px; }
 
-#intro-step .entry-title { animation: entry-arrive 800ms var(--entry-ease) both; }
-#intro-step .entry-body { animation: entry-arrive 800ms 180ms var(--entry-ease) both; }
+#intro-step.is-active .entry-title { animation: entry-arrive 650ms var(--entry-ease) both; }
+#intro-step.is-active .entry-body { animation: entry-arrive 650ms 140ms var(--entry-ease) both; }
 
 .landing-hint {
     margin-top: 42px;
@@ -174,8 +185,22 @@ body {
 }
 
 @media (max-width: 600px) {
+    :root {
+        --terminal-top: 16px;
+        --terminal-width: calc(100vw - 24px);
+        --terminal-height: min(58dvh, calc(100dvh - 160px), 440px);
+    }
+
     #landing-wrapper { padding: 28px 24px; }
     .landing-hint { margin-top: 28px; }
+}
+
+/* Ultrawide displays gain width without making the window feel vertically oversized. */
+@media (min-aspect-ratio: 2 / 1) {
+    :root {
+        --terminal-width: min(72vw, 1500px);
+        --terminal-height: min(70dvh, calc(100dvh - 170px), 700px);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
