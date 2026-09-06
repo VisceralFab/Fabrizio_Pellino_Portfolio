@@ -166,32 +166,7 @@ navRefresh.addEventListener('click', () => {
     loadPage(false);
 });
 
-// Address bar interaction
-addressInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-        let inputVal = addressInput.value.trim();
-
-        // Remove '~/' prefix if present
-        if (inputVal.startsWith('~/')) {
-            inputVal = inputVal.substring(2);
-        }
-
-        // Handle 'projects/' prefix
-        if (inputVal.startsWith('projects/')) {
-            inputVal = inputVal.replace('projects/', 'project-');
-        }
-
-        // Handle empty or root
-        if (!inputVal || inputVal === 'home') {
-            window.location.hash = 'home';
-        } else {
-            window.location.hash = inputVal;
-        }
-
-        // Blur to show completion
-        addressInput.blur();
-    }
-});
+// Address editing and the path dropdown are handled in address-navigation.js.
 
 window.addEventListener('hashchange', () => loadPage(true));
 

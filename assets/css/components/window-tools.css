@@ -1,0 +1,122 @@
+.desktop-tools {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top));
+    right: max(16px, env(safe-area-inset-right));
+    z-index: 1250;
+    display: flex;
+    gap: 8px;
+}
+.desktop-tools[hidden], .address-menu[hidden] { display: none; }
+.desktop-tools button {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(220, 242, 255, 0.22);
+    border-radius: 11px;
+    color: var(--text-main);
+    background: rgba(5, 20, 38, 0.78);
+    backdrop-filter: blur(16px);
+    cursor: pointer;
+    transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.desktop-tools svg {
+    width: 23px;
+    height: 23px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.desktop-tools button:hover {
+    color: var(--accent);
+    background: rgba(10, 45, 67, 0.92);
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: translateY(-2px);
+}
+.desktop-tools button:active { transform: scale(0.94); }
+.desktop-tools button:focus-visible, #address-menu-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+/* Reserve header space when the window extends underneath the desktop tools. */
+.terminal-window.is-maximized:not(.is-minimized) .terminal-header { padding-right: 118px; }
+
+.terminal-buttons { isolation: isolate; }
+.terminal-buttons button {
+    position: relative;
+    box-shadow: 0 0 5px var(--traffic-color);
+    transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 200ms ease, filter 200ms ease;
+}
+.terminal-buttons .btn-close { --traffic-color: #ff5f56; }
+.terminal-buttons .btn-minimize { --traffic-color: #ffbd2e; }
+.terminal-buttons .btn-maximize { --traffic-color: #27ca40; }
+.terminal-buttons button:hover, .terminal-buttons button:focus-visible {
+    z-index: 1;
+    transform: translateY(-1px) scale(1.28);
+    filter: brightness(1.2);
+    box-shadow: 0 0 9px var(--traffic-color), 0 0 20px var(--traffic-color);
+}
+.terminal-buttons button:active { transform: scale(0.94); }
+
+.nav-address-bar { min-width: 0; }
+.address-input { min-width: 0; }
+#address-menu-toggle {
+    display: grid;
+    place-items: center;
+    flex: 0 0 28px;
+    height: 24px;
+    margin-left: 4px;
+    padding: 0;
+    color: var(--text-main);
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#address-menu-toggle:hover { background: rgba(220, 242, 255, 0.12); }
+#address-menu-toggle svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; transition: transform 180ms ease; }
+#address-menu-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.address-menu {
+    position: fixed;
+    z-index: 1400;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 6px;
+    border: 1px solid rgba(220, 242, 255, 0.16);
+    border-top: 2px solid var(--accent);
+    border-radius: 0 0 10px 10px;
+    background: rgba(22, 28, 37, 0.97);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5);
+    scrollbar-width: thin;
+    scrollbar-color: #7496b0 transparent;
+    animation: address-menu-in 160ms ease-out;
+}
+.address-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 43px;
+    padding: 10px 13px;
+    border-radius: 5px;
+    color: var(--text-main);
+    text-decoration: none;
+    font: 13px 'Inter', sans-serif;
+}
+.address-option:hover, .address-option[aria-selected="true"] { background: rgba(220, 242, 255, 0.12); }
+.address-option[aria-current="page"] { color: var(--accent); }
+.address-option small { color: #9daebd; font: 11px 'Fira Code', monospace; overflow-wrap: anywhere; text-align: right; }
+.address-empty { padding: 16px; color: #9daebd; font-size: 12px; }
+@keyframes address-menu-in { from { opacity: 0; translate: 0 -5px; } to { opacity: 1; translate: 0 0; } }
+@media (max-width: 600px) {
+    .address-option { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .address-option small { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .terminal-buttons button, .desktop-tools button, #address-menu-toggle svg { transition: none; }
+    .terminal-buttons button:hover, .terminal-buttons button:focus-visible { transform: none; }
+    .address-menu { animation: none; }
+}

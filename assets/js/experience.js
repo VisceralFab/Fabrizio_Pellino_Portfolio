@@ -38,6 +38,7 @@
         minimizeButton.setAttribute('aria-label', minimized ? 'Restore portfolio' : 'Minimize portfolio');
         minimizeButton.title = minimizeButton.getAttribute('aria-label');
         if (minimized) pauseVideos();
+        portfolio.dispatchEvent(new Event('portfolio:geometrychange'));
     }
 
     function setMaximized(maximized) {
@@ -45,6 +46,7 @@
         maximizeButton.setAttribute('aria-pressed', String(maximized));
         maximizeButton.setAttribute('aria-label', maximized ? 'Restore window size' : 'Maximize portfolio');
         maximizeButton.title = maximizeButton.getAttribute('aria-label');
+        portfolio.dispatchEvent(new Event('portfolio:geometrychange'));
     }
 
     function pauseVideos() {
@@ -56,6 +58,7 @@
         portfolio.inert = false;
         portfolio.setAttribute('aria-hidden', 'false');
         portfolio.classList.add('is-visible');
+        portfolio.dispatchEvent(new Event('portfolio:geometrychange'));
         closeButton.focus({ preventScroll: true });
     }
 
@@ -67,6 +70,7 @@
         landing.setAttribute('aria-hidden', 'true');
         landing.classList.add('is-dismissed');
         document.body.classList.add('experience-entered');
+        document.getElementById('desktop-tools').hidden = false;
         player.inert = false;
         player.classList.add('is-visible');
         window.siteMusic?.setEnabled(musicChoice);
@@ -112,6 +116,7 @@
     closeButton.addEventListener('click', () => {
         pauseVideos();
         portfolio.classList.remove('is-visible');
+        portfolio.dispatchEvent(new Event('portfolio:geometrychange'));
         portfolio.inert = true;
         portfolio.setAttribute('aria-hidden', 'true');
         reopenButton.hidden = false;
@@ -136,6 +141,12 @@
         if (event.key === 'Escape' && portfolio.classList.contains('is-maximized')) {
             setMaximized(false);
         }
+    });
+    portfolio.addEventListener('portfolio:restore-request', () => {
+        if (step !== 'entered') return;
+        setMinimized(false);
+        setMaximized(false);
+        if (!portfolio.classList.contains('is-visible')) openPortfolio();
     });
     landing.focus({ preventScroll: true });
 })();

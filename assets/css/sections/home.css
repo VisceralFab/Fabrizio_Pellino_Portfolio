@@ -164,6 +164,66 @@
 }
 
 /* Helper to hide cursor during typing */
+/* Home follows the window's width, with three zones filling its usable height. */
+#app-container:has(> #home.active) {
+    display: flex;
+    flex: 1 0 auto;
+    max-width: none;
+    margin: 0;
+}
+
+#home.active {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: clamp(24px, 4dvh, 56px);
+    flex: 1;
+    min-width: 0;
+    min-height: 340px;
+    padding-block: clamp(0px, 1dvh, 16px);
+}
+
+#home .terminal-name {
+    align-self: start;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    margin: 0;
+    gap: 6px;
+    font-size: clamp(1.4rem, 3.8cqw, 3.6rem);
+    line-height: 1.25;
+}
+
+#home .name-text { min-width: 0; overflow-wrap: anywhere; }
+#home .bio-section {
+    align-self: center;
+    margin: 0;
+    padding: 0;
+    gap: clamp(12px, 1.5cqw, 22px);
+}
+#home .prompt-line {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-size: clamp(0.75rem, 1.2cqw, 1rem);
+    line-height: 1.7;
+}
+#home .description-line {
+    max-width: 38ch;
+    font-size: clamp(1.125rem, 3cqw, 2.6rem);
+    line-height: 1.45;
+    text-wrap: pretty;
+}
+#home .navigation-section { align-self: end; margin: 0; }
+#home .nav-buttons { gap: clamp(12px, 1.6cqw, 24px); }
+#home .nav-btn {
+    font-size: clamp(0.875rem, 1.15cqw, 1rem);
+    padding: clamp(12px, 1.2cqw, 18px) clamp(22px, 2.8cqw, 42px);
+    min-height: 44px;
+}
+
+@media (max-height: 600px) {
+    #home.active { min-height: 280px; gap: 20px; }
+}
+
 .cursor-hidden::after {
     display: none;
 }

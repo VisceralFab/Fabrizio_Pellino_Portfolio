@@ -1,5 +1,6 @@
 /* Terminal Window */
 .terminal-window {
+    container-type: inline-size;
     position: relative;
     z-index: 1;
     width: 95%;
@@ -43,7 +44,14 @@
     padding: 14px 20px;
     background: rgba(20, 24, 30, 0.85); /* Premium heading bar */
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
 }
+
+.terminal-header:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.terminal-window.is-dragging .terminal-header { cursor: grabbing; }
+.terminal-window.is-maximized:not(.is-minimized) .terminal-header { cursor: default; }
 
 .terminal-buttons {
     display: flex;
@@ -201,18 +209,20 @@
 .terminal-window,
 .terminal-window.scroll-mode {
     position: fixed;
-    top: clamp(20px, 7vh, 70px);
+    --window-height: min(960px, calc(100dvh - 128px));
+    top: max(16px, calc((100dvh - 96px - var(--window-height)) / 2));
     left: 50%;
     display: flex;
     flex-direction: column;
-    width: min(1200px, calc(100vw - 40px));
-    height: calc(100dvh - 160px);
-    max-height: 820px;
+    width: min(1440px, calc(100vw - clamp(24px, 8vw, 160px)));
+    height: var(--window-height);
+    max-height: none;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
     transform: translateX(-50%) translateY(18px) scale(0.97);
     transform-origin: top center;
+    translate: var(--window-x, 0px) var(--window-y, 0px);
     transition: opacity 650ms var(--entry-ease), transform 750ms var(--entry-ease),
         height 600ms var(--entry-ease), width 600ms var(--entry-ease),
         top 600ms var(--entry-ease), left 600ms var(--entry-ease),
@@ -223,7 +233,7 @@
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateX(-50%);
+    transform: translateX(-50%) rotate(var(--window-tilt, 0deg)) skewX(var(--window-skew, 0deg));
     transition-delay: 0s;
 }
 
@@ -235,6 +245,7 @@
 }
 
 .terminal-content {
+    container-type: inline-size;
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -255,6 +266,7 @@
     scrollbar-width: thin;
     scrollbar-color: #008080 transparent;
     padding-block: clamp(28px, 4vh, 48px);
+    padding-inline: clamp(18px, 3.5cqw, 60px);
 }
 
 /* Auto margins center short pages and collapse safely for scrollable pages. */
@@ -282,9 +294,17 @@
     max-height: none;
     border-radius: 0;
     transform: none;
+    translate: none;
 }
 .terminal-window.is-maximized:not(.is-minimized) .terminal-content {
     padding-bottom: 110px;
+}
+
+/* The drag animation owns transform while moving; avoid a second CSS lag. */
+.terminal-window.is-dragging,
+.terminal-window.is-settling {
+    transition-property: opacity, height, width, top, left, border-radius, visibility;
+    will-change: translate, transform;
 }
 
 /* Scroll Mode Body */
@@ -356,4 +376,72 @@
 
 @media (prefers-reduced-motion: reduce) {
     .terminal-window, .terminal-window.scroll-mode, .terminal-content { transition: none; }
+}
+
+/* User dimensions survive close, minimize and maximize, but fit the viewport. */
+.terminal-window.is-user-sized:not(.is-maximized),
+.terminal-window.is-user-sized.is-minimized {
+    width: min(var(--user-width), calc(100vw - 24px));
+    max-width: none;
+}
+.terminal-window.is-user-sized:not(.is-maximized):not(.is-minimized) {
+    height: min(var(--user-height), calc(100dvh - 24px));
+}
+.terminal-window.is-resizing { transition: none; }
+.is-window-resizing, .is-window-resizing * {
+    cursor: var(--resize-cursor) !important;
+    user-select: none !important;
+}
+.window-resize-handle {
+    position: absolute;
+    z-index: 30;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    touch-action: none;
+}
+.resize-n, .resize-s { left: 18px; right: 18px; height: 7px; }
+.resize-n { top: 0; }
+.resize-s { bottom: 0; }
+.resize-e, .resize-w { top: 18px; bottom: 18px; width: 7px; }
+.resize-e { right: 0; }
+.resize-w { left: 0; }
+.resize-ne, .resize-nw, .resize-se, .resize-sw { width: 18px; height: 18px; }
+.resize-ne { top: 0; right: 0; }
+.resize-nw { top: 0; left: 0; }
+.resize-se { bottom: 0; right: 0; width: 24px; height: 24px; border-radius: 0 0 12px 0; }
+.resize-sw { bottom: 0; left: 0; }
+.resize-se::after {
+    content: '';
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    width: 12px;
+    height: 12px;
+    background: repeating-linear-gradient(135deg, transparent 0 3px, rgba(220, 242, 255, 0.45) 3px 4px);
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    transition: background 180ms ease;
+}
+.resize-se:hover::after, .resize-se:focus-visible::after {
+    background: repeating-linear-gradient(135deg, transparent 0 3px, var(--accent) 3px 4px);
+}
+.resize-se:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.terminal-window.is-minimized .window-resize-handle,
+.terminal-window.is-maximized .window-resize-handle { display: none; }
+
+/* Layout responds to the CMD window, even inside a wide desktop browser. */
+@container (max-width: 800px) {
+    .terminal-content .project-detail-content, .terminal-content .about-content { grid-template-columns: minmax(0, 1fr); }
+    .terminal-content .project-sidebar { order: -1; }
+    .terminal-content .projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .terminal-content .profile-header { flex-direction: column; align-items: center; gap: 24px; text-align: center; }
+    .terminal-content .profile-contact { margin-top: 0; text-align: center; }
+}
+@container (max-width: 540px) {
+    .terminal-header .terminal-session { display: none; }
+    .terminal-content .projects-grid { grid-template-columns: minmax(0, 1fr); }
+    .terminal-content .nav-buttons { flex-direction: column; }
+    .terminal-content .nav-btn { width: 100%; }
+    .terminal-content .project-nav-container { gap: 16px; flex-wrap: wrap; }
 }

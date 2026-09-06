@@ -40,9 +40,17 @@
     <button id="reopen-portfolio" class="reopen-portfolio" type="button" hidden>Open portfolio <span aria-hidden="true">↗</span></button>
 
     <!-- Main Site Content -->
+    <div class="desktop-tools" id="desktop-tools" role="group" aria-label="Window layout" hidden>
+        <button type="button" id="center-window" aria-label="Center window" title="Center window">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+        </button>
+        <button type="button" id="reset-window-size" aria-label="Reset window size" title="Reset window size">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a9 9 0 1 1-1 8M4 3v5h5"/><rect x="8" y="9" width="9" height="7" rx="1"/></svg>
+        </button>
+    </div>
     <div class="terminal-window" role="region" aria-label="Portfolio" aria-hidden="true" inert>
         <!-- Terminal Header -->
-        <div class="terminal-header">
+        <div class="terminal-header" tabindex="0" role="group" aria-label="Portfolio window bar. Drag to move, or focus and use arrow keys." title="Drag to move the window">
             <div class="terminal-buttons">
                 <button class="btn-close" type="button" aria-label="Close portfolio" title="Close portfolio"></button>
                 <button class="btn-minimize" type="button" aria-label="Minimize portfolio" title="Minimize portfolio" aria-expanded="true" aria-controls="terminal-content"></button>
@@ -70,7 +78,8 @@
                 <div class="address-icon">
                     <i class="fa-solid fa-folder"></i>
                 </div>
-                <input type="text" class="address-input" id="address-input" spellcheck="false" value="~/home">
+                <input type="text" class="address-input" id="address-input" spellcheck="false" value="~/home" role="combobox" aria-label="Portfolio path" aria-autocomplete="list" aria-expanded="false" aria-controls="address-menu" autocomplete="off">
+                <button type="button" id="address-menu-toggle" aria-label="Show all paths" aria-expanded="false" aria-controls="address-menu"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button>
             </div>
         </div>
 
@@ -85,6 +94,7 @@
     </div>
 
     <!-- Background audio: playback is enabled only by an explicit choice. -->
+    <div id="address-menu" class="address-menu" role="listbox" aria-label="Portfolio paths" hidden></div>
     <audio id="siteAudio" preload="auto" loop playsinline>
         <source src="assets/media/Killer%20Tune%20Kills%20Me%20-%20Kirinji.flac" type="audio/flac">
         Your browser does not support the audio element.
@@ -112,8 +122,10 @@
     <script src="assets/js/ps3/particles.js"></script>
     <script src="assets/js/ps3-background.js"></script>
     <script src="assets/js/app.js"></script>
+    <script src="assets/js/address-navigation.js"></script>
     <script src="assets/js/audio.js"></script>
     <script src="assets/js/experience.js"></script>
+    <script src="assets/js/window-motion.js"></script>
 </body>
 
 </html>
