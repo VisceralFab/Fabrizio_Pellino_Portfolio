@@ -127,6 +127,7 @@ function updateUI(sectionName) {
     addressInput.value = '~/' + displaySection;
 
     // Toggle internal scrolling for projects (except Fede Link which is single page)
+    terminalWindow.classList.toggle('is-about', sectionName === 'about');
     if ((sectionName.startsWith('project') && sectionName !== 'project-fede-link') || sectionName === 'projects') {
         terminalWindow.classList.add('scroll-mode');
         terminalWindow.classList.remove('no-scroll');
@@ -197,7 +198,9 @@ window.addEventListener('hashchange', () => loadPage(true));
 
 // The introduction and window controls live in experience.js.
 document.addEventListener('DOMContentLoaded', () => {
-    if (!window.location.hash) {
+    // Every full reload begins at the portfolio root so the entry experience
+    // always leads into the home screen, rather than a previously open tab.
+    if (window.location.hash !== '#home') {
         window.history.replaceState(null, '', '#home');
     }
     loadPage(true);

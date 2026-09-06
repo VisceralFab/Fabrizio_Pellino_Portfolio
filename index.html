@@ -15,29 +15,27 @@
     <!-- PlayStation 3 XMB-inspired animated background -->
     <canvas id="ps3-background" aria-hidden="true"></canvas>
 
-    <!-- Two-step introduction over the PS3 gradient. -->
-    <div id="landing-wrapper" role="dialog" aria-modal="true" aria-labelledby="intro-title" data-step="welcome" lang="en" tabindex="-1">
-        <section class="entry-panel is-active" id="intro-step">
-            <h1 class="entry-title" id="intro-title">Welcome in the official design portfolio of <span>Fabrizio Pellino</span></h1>
+    <!-- Audio choice followed by a brief welcome over the PS3 gradient. -->
+    <div id="landing-wrapper" role="dialog" aria-modal="true" aria-labelledby="music-question" data-step="music" lang="en" tabindex="-1">
+        <section class="entry-panel" id="intro-step" aria-hidden="true" inert>
+            <h1 class="entry-title" id="intro-title" tabindex="-1">Welcome in the official design portfolio of <span>Fabrizio Pellino</span></h1>
             <div class="entry-body">
                 <p>In here, you can find projects spacing between UI-UX design and product design.</p>
                 <p>Hope you have a good time.</p>
             </div>
-            <button class="landing-hint" id="continue-btn" type="button">Click or tap anywhere to continue <span aria-hidden="true">↵</span></button>
         </section>
-        <section class="entry-panel" id="music-step" aria-hidden="true" inert>
-            <h2 class="entry-title" id="music-question" tabindex="-1">Would you like to have a background music during the experience?</h2>
+        <section class="entry-panel is-active" id="music-step">
+            <p class="entry-eyebrow">Disclaimer:</p>
+            <h2 class="entry-title" id="music-question" tabindex="-1">This site uses music and sound effects as you browse.<br>Would you like to enable them?</h2>
             <div class="entry-choices" role="group" aria-labelledby="music-question">
                 <button class="entry-choice" type="button" data-music-choice="yes" aria-pressed="false">yes</button>
                 <button class="entry-choice" type="button" data-music-choice="no" aria-pressed="false">no</button>
-            </div>
-            <div class="entry-enter-slot">
-                <button class="entry-enter" id="enter-btn" type="button" hidden>Have fun!</button>
             </div>
         </section>
     </div>
 
     <button id="reopen-portfolio" class="reopen-portfolio" type="button" hidden>Open portfolio <span aria-hidden="true">↗</span></button>
+    <button id="reset-window-size" class="reset-window-size" type="button" aria-label="Restore default window size">Default Window Size</button>
 
     <!-- Main Site Content -->
     <div class="terminal-window" role="region" aria-label="Portfolio" aria-hidden="true" inert>
