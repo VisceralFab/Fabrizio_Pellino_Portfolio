@@ -3,6 +3,8 @@
     const panel = document.querySelector('.terminal-window');
     const handle = panel?.querySelector('.terminal-header');
     if (!handle) return;
+    const resetButton = document.getElementById('reset-window-size');
+    const markAdjusted = () => resetButton.classList.add('is-visible');
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const position = { x: 0, y: 0 };
@@ -27,12 +29,12 @@
     // Layout coordinates exclude drag translation and the decorative wobble.
     function bounds() {
         const left = panel.offsetLeft - panel.offsetWidth / 2;
-        const top = panel.offsetTop;
+        const top = panel.offsetTop - panel.offsetHeight / 2;
         return {
-            minX: 12 - left,
-            maxX: window.innerWidth - 12 - left - panel.offsetWidth,
+            minX: 80 - left - panel.offsetWidth,
+            maxX: window.innerWidth - 80 - left,
             minY: 12 - top,
-            maxY: window.innerHeight - 12 - top - panel.offsetHeight
+            maxY: window.innerHeight - 50 - top
         };
     }
 
@@ -56,8 +58,6 @@
         frame = 0;
         const dt = Math.min(1 / 30, Math.max(1 / 240, (now - previousTime) / 1000));
         previousTime = now;
-        const limits = bounds();
-        constrain(target, limits);
         const dx = target.x - position.x;
         const dy = target.y - position.y;
 
@@ -66,24 +66,16 @@
             position.y = target.y;
             resetDeformation();
         } else {
-            const follow = 1 - Math.exp(-24 * dt);
-            position.x += dx * follow;
-            position.y += dy * follow;
-            // Fade out deformation near the viewport edges to keep corners visible.
-            const room = Math.min(position.x - limits.minX, limits.maxX - position.x,
-                position.y - limits.minY, limits.maxY - position.y);
-            const edge = clamp(room / 24, 0, 1);
-            const desiredTilt = pointer ? clamp(dx * 0.012 + dy * 0.003, -0.45, 0.45) * edge : 0;
-            const desiredSkew = pointer ? clamp(-dx * 0.025, -0.8, 0.8) * edge : 0;
-            tiltVelocity = (tiltVelocity + (desiredTilt - tilt) * 190 * dt) * Math.exp(-17 * dt);
-            skewVelocity = (skewVelocity + (desiredSkew - skew) * 190 * dt) * Math.exp(-17 * dt);
+            // Position follows the pointer exactly; only the shape has inertia.
+            position.x = target.x;
+            position.y = target.y;
+            const desiredTilt = pointer ? clamp(dx * 0.09 + dy * 0.025, -3, 3) : 0;
+            const desiredSkew = pointer ? clamp(-dx * 0.22 + dy * 0.06, -7, 7) : 0;
+            tiltVelocity += ((desiredTilt - tilt) * 220 - tiltVelocity * 12) * dt;
+            skewVelocity += ((desiredSkew - skew) * 180 - skewVelocity * 10) * dt;
             tilt += tiltVelocity * dt;
             skew += skewVelocity * dt;
-            // The border itself never swings outside the safe area.
-            tilt *= edge;
-            skew *= edge;
         }
-        constrain(position, limits);
 
         const moving = Math.abs(target.x - position.x) + Math.abs(target.y - position.y) > 0.15;
         const wobbling = Math.abs(tilt) + Math.abs(skew) + Math.abs(tiltVelocity) + Math.abs(skewVelocity) > 0.015;
@@ -107,6 +99,7 @@
 
     function releasePointer() {
         if (!pointer) return;
+        if (target.x !== pointer.startX || target.y !== pointer.startY) markAdjusted();
         const id = pointer.id;
         pointer = null;
         panel.classList.remove('is-dragging');
@@ -156,6 +149,7 @@
         pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, startX: position.x, startY: position.y };
         handle.setPointerCapture(event.pointerId);
         handle.focus({ preventScroll: true });
+        panel.style.transformOrigin = `${event.clientX - (panel.offsetLeft - panel.offsetWidth / 2 + position.x)}px ${event.clientY - (panel.offsetTop - panel.offsetHeight / 2 + position.y)}px`;
         panel.classList.add('is-dragging');
         panel.classList.remove('is-settling');
     });
@@ -164,7 +158,7 @@
         if (!pointer || pointer.id !== event.pointerId) return;
         target.x = pointer.startX + event.clientX - pointer.x;
         target.y = pointer.startY + event.clientY - pointer.y;
-        constrain(target, bounds());
+        if (target.x !== pointer.startX || target.y !== pointer.startY) markAdjusted();
         schedule();
     });
     handle.addEventListener('pointerup', event => {
@@ -195,6 +189,7 @@
         const distance = event.shiftKey ? 50 : 20;
         target.x += direction[0] * distance;
         target.y += direction[1] * distance;
+        markAdjusted();
         panel.classList.add('is-settling');
         schedule();
     });
@@ -202,7 +197,7 @@
     function floatingRect() {
         return {
             left: panel.offsetLeft - panel.offsetWidth / 2 + position.x,
-            top: panel.offsetTop + position.y,
+            top: panel.offsetTop - panel.offsetHeight / 2 + position.y,
             width: panel.offsetWidth,
             height: panel.offsetHeight
         };
@@ -223,13 +218,17 @@
     }
 
     function applySize(rect) {
+        const current = floatingRect();
+        if (Math.abs(rect.width - current.width) < 0.5 && Math.abs(rect.height - current.height) < 0.5 &&
+            Math.abs(rect.left - current.left) < 0.5 && Math.abs(rect.top - current.top) < 0.5) return;
+        markAdjusted();
         panel.classList.add('is-user-sized');
         panel.style.setProperty('--user-width', rect.width + 'px');
         panel.style.setProperty('--user-height', rect.height + 'px');
         // Width changes the centered CSS anchor. Compensate so the opposite
         // edge stays fixed, even on a window that has already been dragged.
         position.x = rect.left - (panel.offsetLeft - panel.offsetWidth / 2);
-        position.y = rect.top - panel.offsetTop;
+        position.y = rect.top - (panel.offsetTop - panel.offsetHeight / 2);
         target.x = position.x;
         target.y = position.y;
         resetDeformation();
@@ -327,23 +326,24 @@
         }
         await geometryChanged();
         if (version !== arrangementVersion) return;
-        if (!resetSize) {
+        resetButton.classList.remove('is-visible');
+        handle.focus({ preventScroll: true });
+        {
             target.x = 0;
-            target.y = (window.innerHeight - panel.offsetHeight) / 2 - panel.offsetTop;
+            target.y = 0;
             constrain(target, bounds());
             panel.classList.add('is-settling');
             schedule();
         }
     }
-    document.getElementById('center-window').addEventListener('click', () => arrangeWindow(false));
-    document.getElementById('reset-window-size').addEventListener('click', () => arrangeWindow(true));
+    resetButton.addEventListener('click', () => arrangeWindow(true));
 
     panel.addEventListener('portfolio:geometrychange', geometryChanged);
     window.addEventListener('resize', geometryChanged);
     reducedMotion.addEventListener('change', reconcile);
     // Size transitions and browser zoom can change bounds after a resize event.
     const observer = new ResizeObserver(() => {
-        if (!layoutChanging && !resizePointer) reconcile();
+        if (!layoutChanging && !resizePointer && !pointer) reconcile();
     });
     observer.observe(panel);
     reconcile();

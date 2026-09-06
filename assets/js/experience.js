@@ -10,29 +10,13 @@
     const minimizeButton = document.querySelector('.btn-minimize');
     const maximizeButton = document.querySelector('.btn-maximize');
     const reopenButton = document.getElementById('reopen-portfolio');
-    const resetWindowButton = document.getElementById('reset-window-size');
+    const welcomeProgress = document.getElementById('welcome-progress');
     const player = document.getElementById('musicControl');
     let step = 'music';
     let welcomeTimer;
+    let progressFrame;
+    const welcomeDuration = 5000;
     let musicChoice = false;
-    let dragState = null;
-    let hasUserAdjustedWindow = false;
-
-    function showWindowReset() {
-        if (hasUserAdjustedWindow) resetWindowButton.classList.add('is-visible');
-    }
-
-    function resetWindowSize() {
-        portfolio.classList.remove('is-user-positioned');
-        portfolio.style.removeProperty('top');
-        portfolio.style.removeProperty('left');
-        portfolio.style.removeProperty('width');
-        portfolio.style.removeProperty('height');
-        portfolio.style.removeProperty('transform');
-        hasUserAdjustedWindow = false;
-        resetWindowButton.classList.remove('is-visible');
-    }
-
     function showWelcome() {
         if (step !== 'music') return;
         step = 'welcome';
@@ -45,7 +29,15 @@
         intro.removeAttribute('aria-hidden');
         intro.classList.add('is-active');
         document.getElementById('intro-title').focus({ preventScroll: true });
-        welcomeTimer = window.setTimeout(enterPortfolio, 5000);
+        const started = performance.now();
+        function updateProgress(now) {
+            const percent = Math.min(100, (now - started) / welcomeDuration * 100);
+            welcomeProgress.style.setProperty('--progress', percent + '%');
+            welcomeProgress.setAttribute('aria-valuenow', String(Math.round(percent)));
+            if (step === 'welcome' && percent < 100) progressFrame = requestAnimationFrame(updateProgress);
+        }
+        progressFrame = requestAnimationFrame(updateProgress);
+        welcomeTimer = window.setTimeout(enterPortfolio, welcomeDuration);
     }
 
     function setMinimized(minimized) {
@@ -60,11 +52,9 @@
     }
 
     function setMaximized(maximized) {
-        if (maximized) resetWindowSize();
         portfolio.classList.toggle('is-maximized', maximized);
         player.classList.toggle('is-suppressed', maximized);
         player.inert = maximized;
-        if (maximized) resetWindowButton.classList.remove('is-visible');
         maximizeButton.setAttribute('aria-pressed', String(maximized));
         maximizeButton.setAttribute('aria-label', maximized ? 'Restore window size' : 'Maximize portfolio');
         maximizeButton.title = maximizeButton.getAttribute('aria-label');
@@ -87,13 +77,15 @@
     function enterPortfolio() {
         if (step !== 'welcome') return;
         window.clearTimeout(welcomeTimer);
+        cancelAnimationFrame(progressFrame);
+        welcomeProgress.style.setProperty('--progress', '100%');
+        welcomeProgress.setAttribute('aria-valuenow', '100');
         step = 'entered';
         landing.dataset.step = step;
         landing.inert = true;
         landing.setAttribute('aria-hidden', 'true');
         landing.classList.add('is-dismissed');
         document.body.classList.add('experience-entered');
-        document.getElementById('desktop-tools').hidden = false;
         player.inert = false;
         player.classList.add('is-visible');
         window.siteMusic?.setEnabled(musicChoice);
@@ -116,6 +108,11 @@
         if (event.key !== 'Tab' || step === 'entered') return;
         const activePanel = step === 'welcome' ? intro : musicStep;
         const buttons = [...activePanel.querySelectorAll('button:not([hidden])')];
+        if (!buttons.length) {
+            event.preventDefault();
+            document.getElementById('intro-title').focus({ preventScroll: true });
+            return;
+        }
         const first = buttons[0];
         const last = buttons[buttons.length - 1];
         if (event.shiftKey && (document.activeElement === first || !buttons.includes(document.activeElement))) {
@@ -156,40 +153,10 @@
             setMaximized(false);
         }
     });
-    resetWindowButton.addEventListener('click', resetWindowSize);
-
-    document.querySelector('.terminal-header').addEventListener('pointerdown', event => {
-        if (event.button !== 0 || event.target.closest('button') || portfolio.classList.contains('is-maximized')) return;
-        const bounds = portfolio.getBoundingClientRect();
-        hasUserAdjustedWindow = true;
-        portfolio.classList.add('is-user-positioned');
-        portfolio.style.left = `${bounds.left}px`;
-        portfolio.style.top = `${bounds.top}px`;
-        portfolio.style.width = `${bounds.width}px`;
-        portfolio.style.height = `${bounds.height}px`;
-        portfolio.style.transform = 'none';
-        dragState = { offsetX: event.clientX - bounds.left, offsetY: event.clientY - bounds.top };
-        event.currentTarget.setPointerCapture(event.pointerId);
-        event.preventDefault();
+    portfolio.addEventListener('portfolio:restore-request', () => {
+        setMinimized(false);
+        setMaximized(false);
+        if (!portfolio.classList.contains('is-visible')) openPortfolio();
     });
-    document.querySelector('.terminal-header').addEventListener('pointermove', event => {
-        if (!dragState) return;
-        portfolio.style.left = `${event.clientX - dragState.offsetX}px`;
-        portfolio.style.top = `${event.clientY - dragState.offsetY}px`;
-    });
-    document.querySelector('.terminal-header').addEventListener('pointerup', event => {
-        if (!dragState) return;
-        dragState = null;
-        event.currentTarget.releasePointerCapture(event.pointerId);
-        showWindowReset();
-    });
-    portfolio.addEventListener('pointerdown', event => {
-        if (portfolio.classList.contains('is-maximized')) return;
-        const bounds = portfolio.getBoundingClientRect();
-        if (event.clientX >= bounds.right - 24 && event.clientY >= bounds.bottom - 24) {
-            hasUserAdjustedWindow = true;
-        }
-    });
-    new ResizeObserver(() => showWindowReset()).observe(portfolio);
     landing.focus({ preventScroll: true });
 })();

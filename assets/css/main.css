@@ -54,28 +54,42 @@
 
 .reset-window-size {
     position: fixed;
-    right: 28px;
-    bottom: 26px;
-    z-index: 6;
-    padding: 8px 0;
-    border: 0;
-    background: transparent;
-    color: rgba(220, 242, 255, 0.58);
-    font: 500 11px 'Fira Code', monospace;
-    letter-spacing: 0.05em;
+    right: max(16px, env(safe-area-inset-right));
+    top: max(16px, env(safe-area-inset-top));
+    z-index: 1250;
+    min-height: 44px;
+    padding: 12px 18px;
+    border: 1px solid rgba(220, 242, 255, 0.35);
+    border-radius: 11px;
+    background: rgba(5, 20, 38, 0.88);
+    backdrop-filter: blur(16px);
+    color: var(--text-main);
+    font: 500 12px 'Fira Code', monospace;
     cursor: pointer;
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    transform: translateY(6px);
-    transition: opacity 220ms ease, transform 220ms ease, color 180ms ease;
+    transition: opacity 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 .reset-window-size.is-visible {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
-    transform: translateY(0);
 }
-.reset-window-size:hover,
-.reset-window-size:focus-visible { color: var(--accent); }
+.reset-window-size:hover {
+    color: var(--accent);
+    background: rgba(10, 45, 67, 0.96);
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: translateY(-2px);
+}
+.reset-window-size:active { transform: translateY(1px); }
+.reset-window-size:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .reset-window-size { transition: none; }
+}
 
 #musicControl:hover {
     color: #00dcf8; /* Luminescent cyan highlight on hover */

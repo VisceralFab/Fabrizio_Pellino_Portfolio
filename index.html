@@ -23,6 +23,14 @@
                 <p>In here, you can find projects spacing between UI-UX design and product design.</p>
                 <p>Hope you have a good time.</p>
             </div>
+            <div class="welcome-loading">
+                <div id="welcome-progress" class="welcome-progress" role="progressbar" aria-label="Opening portfolio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                    <span class="welcome-progress-track" aria-hidden="true"></span>
+                    <span class="welcome-progress-fill" aria-hidden="true"></span>
+                    <span class="welcome-progress-dot" aria-hidden="true"></span>
+                </div>
+                <p class="welcome-progress-label">Opening portfolio…</p>
+            </div>
         </section>
         <section class="entry-panel is-active" id="music-step">
             <p class="entry-eyebrow">Disclaimer:</p>
@@ -38,14 +46,6 @@
     <button id="reset-window-size" class="reset-window-size" type="button" aria-label="Restore default window size">Default Window Size</button>
 
     <!-- Main Site Content -->
-    <div class="desktop-tools" id="desktop-tools" role="group" aria-label="Window layout" hidden>
-        <button type="button" id="center-window" aria-label="Center window" title="Center window">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
-        </button>
-        <button type="button" id="reset-window-size" aria-label="Reset window size" title="Reset window size">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8a9 9 0 1 1-1 8M4 3v5h5"/><rect x="8" y="9" width="9" height="7" rx="1"/></svg>
-        </button>
-    </div>
     <div class="terminal-window" role="region" aria-label="Portfolio" aria-hidden="true" inert>
         <!-- Terminal Header -->
         <div class="terminal-header" tabindex="0" role="group" aria-label="Portfolio window bar. Drag to move, or focus and use arrow keys." title="Drag to move the window">

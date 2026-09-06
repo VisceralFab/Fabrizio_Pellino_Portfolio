@@ -41,7 +41,7 @@
     outline-offset: 3px;
 }
 /* Reserve header space when the window extends underneath the desktop tools. */
-.terminal-window.is-maximized:not(.is-minimized) .terminal-header { padding-right: 118px; }
+.terminal-window.is-maximized:not(.is-minimized) .terminal-header { padding-right: 210px; }
 
 .terminal-buttons { isolation: isolate; }
 .terminal-buttons button {
