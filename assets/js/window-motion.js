@@ -25,11 +25,13 @@
     const clamp = (value, min, max) => min > max ? (min + max) / 2 : Math.max(min, Math.min(max, value));
     const maximized = () => panel.classList.contains('is-maximized') && !panel.classList.contains('is-minimized');
     const movable = () => panel.classList.contains('is-visible') && !maximized() && !layoutChanging;
+    const baseTop = () => panel.offsetTop - panel.offsetHeight / 2 -
+        (parseFloat(panel.style.getPropertyValue('--fold-offset')) || 0);
 
     // Layout coordinates exclude drag translation and the decorative wobble.
     function bounds() {
         const left = panel.offsetLeft - panel.offsetWidth / 2;
-        const top = panel.offsetTop - panel.offsetHeight / 2;
+        const top = baseTop();
         return {
             minX: 80 - left - panel.offsetWidth,
             maxX: window.innerWidth - 80 - left,
@@ -134,6 +136,7 @@
         if (frame) cancelAnimationFrame(frame);
         frame = 0;
         resetDeformation();
+        panel.classList.remove('is-settling');
         paint();
         await Promise.allSettled(panel.getAnimations().map(animation => animation.finished));
         if (version !== layoutVersion) return;
@@ -149,7 +152,7 @@
         pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, startX: position.x, startY: position.y };
         handle.setPointerCapture(event.pointerId);
         handle.focus({ preventScroll: true });
-        panel.style.transformOrigin = `${event.clientX - (panel.offsetLeft - panel.offsetWidth / 2 + position.x)}px ${event.clientY - (panel.offsetTop - panel.offsetHeight / 2 + position.y)}px`;
+        panel.style.transformOrigin = `${event.clientX - (panel.offsetLeft - panel.offsetWidth / 2 + position.x)}px ${event.clientY - (baseTop() + position.y)}px`;
         panel.classList.add('is-dragging');
         panel.classList.remove('is-settling');
     });
@@ -197,7 +200,7 @@
     function floatingRect() {
         return {
             left: panel.offsetLeft - panel.offsetWidth / 2 + position.x,
-            top: panel.offsetTop - panel.offsetHeight / 2 + position.y,
+            top: baseTop() + position.y,
             width: panel.offsetWidth,
             height: panel.offsetHeight
         };
@@ -228,7 +231,7 @@
         // Width changes the centered CSS anchor. Compensate so the opposite
         // edge stays fixed, even on a window that has already been dragged.
         position.x = rect.left - (panel.offsetLeft - panel.offsetWidth / 2);
-        position.y = rect.top - (panel.offsetTop - panel.offsetHeight / 2);
+        position.y = rect.top - baseTop();
         target.x = position.x;
         target.y = position.y;
         resetDeformation();

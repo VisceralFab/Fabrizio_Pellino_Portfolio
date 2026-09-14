@@ -11,6 +11,33 @@
     const maximizeButton = document.querySelector('.btn-maximize');
     const reopenButton = document.getElementById('reopen-portfolio');
     const welcomeProgress = document.getElementById('welcome-progress');
+    const progressFill = welcomeProgress.querySelector('.welcome-progress-fill');
+    const progressTrack = welcomeProgress.querySelector('.welcome-progress-track');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // One continuous string: the blue section drives a damped wave into the grey tail.
+    function drawProgress(percent, elapsed) {
+        const tip = 320 * percent / 100;
+        const remaining = 320 - tip;
+        const amplitude = reducedMotion.matches ? 0 : 8 * Math.min(1, remaining / 24);
+        const phase = elapsed / 1200 * Math.PI * 2;
+        function point(x, tail) {
+            const distance = Math.max(0, x - tip);
+            const end = remaining > 0 ? distance / remaining : 1;
+            // Smooth attenuation preserves the tangent at the join and pins the far end.
+            const decay = tail ? Math.exp(-distance * distance / 14000) * (1 - end * end) ** 2 : 1;
+            const start = Math.min(1, Math.max(0, (x - 6) / 18));
+            const anchor = start * start * (3 - 2 * start);
+            const y = 12 + amplitude * Math.sin(x / 40 * Math.PI * 2 - phase) * decay * anchor;
+            return x.toFixed(2) + ' ' + y.toFixed(2);
+        }
+        function path(from, to, tail) {
+            let d = 'M' + point(from, tail);
+            for (let x = from + 2; x < to; x += 2) d += 'L' + point(x, tail);
+            return d + 'L' + point(to, tail);
+        }
+        progressFill.setAttribute('d', path(0, tip, false));
+        progressTrack.setAttribute('d', path(tip, 320, true));
+    }
     const player = document.getElementById('musicControl');
     let step = 'music';
     let welcomeTimer;
@@ -33,6 +60,7 @@
         function updateProgress(now) {
             const percent = Math.min(100, (now - started) / welcomeDuration * 100);
             welcomeProgress.style.setProperty('--progress', percent + '%');
+            drawProgress(percent, now - started);
             welcomeProgress.setAttribute('aria-valuenow', String(Math.round(percent)));
             if (step === 'welcome' && percent < 100) progressFrame = requestAnimationFrame(updateProgress);
         }
@@ -41,6 +69,14 @@
     }
 
     function setMinimized(minimized) {
+        if (minimized === portfolio.classList.contains('is-minimized')) return;
+        // Compensate the centered anchor so folding keeps the header at the same height.
+        if (minimized) {
+            const headerHeight = portfolio.querySelector('.terminal-header').offsetHeight + 2;
+            portfolio.style.setProperty('--fold-offset', (portfolio.offsetHeight - headerHeight) / 2 + 'px');
+        } else {
+            portfolio.style.setProperty('--fold-offset', '0px');
+        }
         portfolio.classList.toggle('is-minimized', minimized);
         content.inert = minimized;
         content.setAttribute('aria-hidden', String(minimized));
@@ -79,6 +115,7 @@
         window.clearTimeout(welcomeTimer);
         cancelAnimationFrame(progressFrame);
         welcomeProgress.style.setProperty('--progress', '100%');
+        drawProgress(100, welcomeDuration);
         welcomeProgress.setAttribute('aria-valuenow', '100');
         step = 'entered';
         landing.dataset.step = step;

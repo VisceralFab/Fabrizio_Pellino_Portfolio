@@ -81,6 +81,78 @@
         let particlesTime = Math.random() * 1000;
         let waveOpacity = 0;
         let brightness = targetBrightness;
+        const portfolio = document.querySelector('.terminal-window');
+        const mouse = { x: 0, y: 0, present: false };
+        const interaction = { x: 0, y: 0, flowX: 0, flowY: 0, strength: 0, width: 1, height: 1, safeRect: [0, 0, 0, 0], protected: false };
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let following = false;
+        let motionCharge = 0;
+        let strengthVelocity = 0;
+        window.addEventListener('pointermove', event => {
+            mouse.present = event.pointerType === 'mouse' && event.buttons === 0;
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+        }, { passive: true });
+        const leave = () => { mouse.present = false; };
+        window.addEventListener('pointerdown', leave, { passive: true });
+        document.documentElement.addEventListener('pointerleave', leave);
+        window.addEventListener('blur', leave);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) leave(); });
+
+        function updateInteraction(delta, entered) {
+            interaction.width = window.innerWidth;
+            interaction.height = window.innerHeight;
+            interaction.protected = !!portfolio?.classList.contains('is-visible');
+            let blocked = false;
+            // Read live bounds: also covers resize, maximize and the decorative wobble.
+            if (interaction.protected) {
+                const rect = portfolio.getBoundingClientRect();
+                interaction.safeRect = [rect.left, rect.top, rect.right, rect.bottom];
+                blocked = mouse.x >= rect.left && mouse.x <= rect.right && mouse.y >= rect.top && mouse.y <= rect.bottom;
+            }
+            const hit = mouse.present ? document.elementFromPoint(mouse.x, mouse.y) : null;
+            blocked ||= !!hit?.closest('.terminal-window, #musicControl, #reset-window-size, #reopen-portfolio, #address-menu, .image-zoom-overlay');
+            blocked ||= portfolio?.classList.contains('is-dragging') || portfolio?.classList.contains('is-resizing');
+            const active = entered && mouse.present && !blocked && !reducedMotion.matches && !document.hidden;
+            const vx = active && following ? (mouse.x - lastMouseX) / Math.max(delta, 0.008) : 0;
+            const vy = active && following ? (mouse.y - lastMouseY) / Math.max(delta, 0.008) : 0;
+            const speed = Math.hypot(vx, vy);
+            // A passing stroke excites the surface; a stationary cursor lets it recover.
+            // Retain the passing stroke briefly, then let it dissolve over several seconds.
+            motionCharge *= Math.exp(-delta * 1.15);
+            if (active) motionCharge = Math.max(motionCharge, following ? Math.min(1, speed / 220) : 0.65);
+            const pull = Math.min(24, speed * 0.035) / Math.max(1, speed);
+            const easing = 1 - Math.exp(-delta * 3);
+            interaction.flowX += (vx * pull - interaction.flowX) * easing;
+            interaction.flowY += (vy * pull - interaction.flowY) * easing;
+            lastMouseX = mouse.x;
+            lastMouseY = mouse.y;
+            if (active) {
+                const follow = following || interaction.strength > 0.02 ? 1 - Math.exp(-delta * 6) : 1;
+                interaction.x += (mouse.x - interaction.x) * follow;
+                interaction.y += (mouse.y - interaction.y) * follow;
+            }
+            following = active;
+            // Critically damped spring: gradual expansion and a smooth return, without bouncing.
+            // The analytic step remains stable at low frame rates.
+            const desiredStrength = active ? motionCharge : 0;
+            // Slow, critically damped recovery: no snap-back or overshoot.
+            const omega = 3;
+            const displacement = interaction.strength - desiredStrength;
+            const spring = strengthVelocity + omega * displacement;
+            const decay = Math.exp(-omega * delta);
+            interaction.strength = desiredStrength + (displacement + spring * delta) * decay;
+            strengthVelocity = (strengthVelocity - omega * spring * delta) * decay;
+            if (motionCharge < 0.0001 && interaction.strength < 0.0001 && Math.abs(strengthVelocity) < 0.0001) {
+                interaction.strength = strengthVelocity = motionCharge = 0;
+            }
+            if (reducedMotion.matches) {
+                interaction.strength = 0;
+                interaction.flowX = interaction.flowY = 0;
+                motionCharge = strengthVelocity = 0;
+            }
+        }
 
         function frame(now) {
             const delta = Math.min(0.1, Math.max(0, (now - previousTime) / 1000));
@@ -96,7 +168,8 @@
             brightness += (targetBrightness - brightness) * (reducedMotion.matches ? 1 : 1 - Math.exp(-delta * 3));
             const reveal = waveOpacity * waveOpacity * (3 - 2 * waveOpacity);
 
-            splineLayer.render(splineTime, { waveOpacity: reveal, backgroundBrightness: brightness });
+            updateInteraction(delta, entered);
+            splineLayer.render(splineTime, { waveOpacity: reveal, backgroundBrightness: brightness, interaction });
             if (reveal > 0) particlesLayer.render(particlesTime, reveal);
             window.requestAnimationFrame(frame);
         }

@@ -18,16 +18,19 @@
     <!-- Audio choice followed by a brief welcome over the PS3 gradient. -->
     <div id="landing-wrapper" role="dialog" aria-modal="true" aria-labelledby="music-question" data-step="music" lang="en" tabindex="-1">
         <section class="entry-panel" id="intro-step" aria-hidden="true" inert>
-            <h1 class="entry-title" id="intro-title" tabindex="-1">Welcome in the official design portfolio of <span>Fabrizio Pellino</span></h1>
+            <h1 class="entry-title" id="intro-title" tabindex="-1">Welcome to my official portfolio.</h1>
             <div class="entry-body">
                 <p>In here, you can find projects spacing between UI-UX design and product design.</p>
                 <p>Hope you have a good time.</p>
             </div>
             <div class="welcome-loading">
                 <div id="welcome-progress" class="welcome-progress" role="progressbar" aria-label="Opening portfolio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                    <span class="welcome-progress-track" aria-hidden="true"></span>
-                    <span class="welcome-progress-fill" aria-hidden="true"></span>
-                    <span class="welcome-progress-dot" aria-hidden="true"></span>
+                    <svg class="welcome-progress-curve" viewBox="0 0 320 24" aria-hidden="true" focusable="false">
+                        <path class="welcome-progress-track" d="M0 12H320" />
+                        <path class="welcome-progress-fill" d="M0 12" />
+                        <circle class="welcome-progress-dot" cx="318" cy="12" r="2" />
+                        <circle class="welcome-progress-dot welcome-progress-dot-start" cx="2" cy="12" r="2" />
+                    </svg>
                 </div>
                 <p class="welcome-progress-label">Opening portfolio…</p>
             </div>
@@ -116,9 +119,9 @@
     <script src="assets/js/ps3/spline-settings.js"></script>
     <script src="assets/js/ps3/particles-settings.js"></script>
     <script src="assets/js/ps3/spline-reverse.js"></script>
-    <script src="assets/js/ps3/spline.js"></script>
+    <script src="assets/js/ps3/spline.js?v=astra-20260915"></script>
     <script src="assets/js/ps3/particles.js"></script>
-    <script src="assets/js/ps3-background.js"></script>
+    <script src="assets/js/ps3-background.js?v=astra-20260915"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/address-navigation.js"></script>
     <script src="assets/js/audio.js"></script>

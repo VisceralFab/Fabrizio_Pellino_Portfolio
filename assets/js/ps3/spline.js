@@ -217,6 +217,12 @@
        uniform vec3 ffdScale1;
        uniform vec3 ffdScale2;
        uniform vec3 ffdOffset;
+       uniform vec2 uPointer;
+       uniform vec2 uFlow;
+       uniform vec2 uViewport;
+       uniform float uPointerStrength;
+       uniform vec4 uSafeRect;
+       uniform float uProtected;
        out vec3 vPos;
        void main() {
          vec3 p = vec3(aPos.x, 0.0, aPos.y);
@@ -239,6 +245,26 @@
          vec2 uv2 = uv;
          uv2.x = fract(uv2.x - uTime * flowSpeed * 0.04 * timeStep);
          p.z -= texture(uSplineTex, uv2).r * zDetailScale;
+         // Work in CSS pixels so the response has the same reach at every DPR.
+         vec2 screen = vec2((p.x * 0.5 + 0.5) * uViewport.x, (0.5 - p.y * 0.5) * uViewport.y);
+         vec2 offset = screen - uPointer;
+         float radius = clamp(uViewport.x * 0.07, 75.0, 110.0);
+         float distanceToPointer = sqrt(dot(offset, offset));
+         // A local contact zone with a smooth falloff and no distant influence.
+         float influence = exp(-dot(offset, offset) / (radius * radius))
+             * (1.0 - smoothstep(radius * 0.65, radius * 1.5, distanceToPointer));
+         vec2 outside = max(max(uSafeRect.xy - screen, screen - uSafeRect.zw), vec2(0.0));
+         float safeDistance = sqrt(dot(outside, outside));
+         float safeMask = mix(1.0, smoothstep(0.0, 80.0, safeDistance), uProtected);
+         // Soap-like expansion: continuously stretch away from the hover point.
+         // Using offset (not a normalized vector) keeps the centre singularity-free.
+         // A small directional trail follows the stroke while radial expansion dominates.
+         vec2 stretch = (offset * 0.58 + uFlow * 0.10) * influence * uPointerStrength * safeMask;
+         // Even the stronger displacement cannot carry vertices into the safe window.
+         float travel = sqrt(dot(stretch, stretch));
+         float guard = mix(1.0, min(1.0, safeDistance * 0.75 / max(travel, 0.001)), uProtected);
+         stretch *= guard;
+         p.xy += vec2(stretch.x, -stretch.y) * 2.0 / uViewport;
          gl_Position = vec4(p, 1.0);
          vPos = p;
        }`,
@@ -285,6 +311,12 @@
     };
 
     const waveU = {
+      pointer: uloc(gl, waveProg, 'uPointer'),
+      flow: uloc(gl, waveProg, 'uFlow'),
+      viewport: uloc(gl, waveProg, 'uViewport'),
+      pointerStrength: uloc(gl, waveProg, 'uPointerStrength'),
+      safeRect: uloc(gl, waveProg, 'uSafeRect'),
+      protected: uloc(gl, waveProg, 'uProtected'),
       tex: uloc(gl, waveProg, 'uSplineTex'),
       time: uloc(gl, waveProg, 'uTime'),
       flowSpeed: uloc(gl, waveProg, 'flowSpeed'),
@@ -318,7 +350,7 @@
       window.__PS3_REVERSE_STATE = state;
     }
 
-    function render(timeSec, { waveOpacity = 1, backgroundBrightness = 1 } = {}) {
+    function render(timeSec, { waveOpacity = 1, backgroundBrightness = 1, interaction = null } = {}) {
       const bgGradient = resolveBackgroundGradient(settings);
 
       gl.disable(gl.DEPTH_TEST);
@@ -343,6 +375,12 @@
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
       gl.useProgram(waveProg);
+      gl.uniform2f(waveU.pointer, interaction?.x ?? 0, interaction?.y ?? 0);
+      gl.uniform2f(waveU.flow, interaction?.flowX ?? 0, interaction?.flowY ?? 0);
+      gl.uniform2f(waveU.viewport, Math.max(1, interaction?.width ?? canvas.clientWidth), Math.max(1, interaction?.height ?? canvas.clientHeight));
+      gl.uniform1f(waveU.pointerStrength, interaction?.strength ?? 0);
+      gl.uniform4f(waveU.safeRect, ...(interaction?.safeRect ?? [0, 0, 0, 0]));
+      gl.uniform1f(waveU.protected, interaction?.protected ? 1 : 0);
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, splineTex);
       gl.uniform1i(waveU.tex, 0);
