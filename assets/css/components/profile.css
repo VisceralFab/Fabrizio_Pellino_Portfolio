@@ -39,7 +39,7 @@
 }
 
 .uid-label {
-    color: #00d4d4;
+    color: var(--accent);
     font-weight: 500;
 }
 
@@ -52,7 +52,7 @@
 }
 
 .detail-label {
-    color: #00d4d4;
+    color: var(--accent);
 }
 
 .profile-contact {
@@ -67,7 +67,7 @@
 }
 
 .contact-label {
-    color: #00d4d4;
+    color: var(--accent);
 }
 
 /* Bio Section (Home) */
@@ -82,7 +82,7 @@
 .bio-indicator {
     width: 3px;
     height: 100px;
-    background: linear-gradient(180deg, #00b4b4, #008080);
+    background: linear-gradient(180deg, #4da3ff, #2563eb);
     border-radius: 2px;
     flex-shrink: 0;
 }
@@ -94,7 +94,7 @@
 }
 
 .root-prompt {
-    color: #00d4d4;
+    color: var(--accent);
     font-weight: 500;
 }
 

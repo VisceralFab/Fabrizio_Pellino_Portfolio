@@ -20,26 +20,11 @@
   let volumeFadeFrame = null;
   let selectedVolume = DEFAULT_VOLUME;
 
-  // Build the compact summary here so the player keeps one source of truth.
-  if (!musicControl.querySelector('.music-summary') && label) {
-    const summary = document.createElement('div');
-    const art = document.createElement('img');
-    const track = document.createElement('div');
-    const kicker = document.createElement('span');
-
-    summary.className = 'music-summary';
-    art.className = 'music-art';
-    art.src = 'https://whitenoiserecords.org/cdn/shop/products/kirinji-cherish_800x.jpg?v=1652516839';
-    art.alt = 'Kirinji - Cherish album cover';
-    art.loading = 'lazy';
-    track.className = 'music-track';
-    kicker.className = 'music-kicker';
-    kicker.textContent = 'Kirinji';
-
+  if (label) {
     label.textContent = TRACK_TITLE;
-    label.parentNode.insertBefore(summary, label);
-    track.append(kicker, label);
-    summary.append(art, track);
+    label.addEventListener('click', () => {
+      toggle.click();
+    });
   }
 
   audio.volume = DEFAULT_VOLUME * MAX_OUTPUT_VOLUME;

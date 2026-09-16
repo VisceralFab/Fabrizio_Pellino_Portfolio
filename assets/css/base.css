@@ -52,9 +52,9 @@ body::before {
     width: 800px;
     height: 600px;
     background: radial-gradient(ellipse at center,
-            rgba(0, 220, 248, 0.18) 0%,
-            rgba(0, 180, 220, 0.08) 35%,
-            rgba(0, 90, 120, 0.02) 60%,
+            rgba(77, 163, 255, 0.18) 0%,
+            rgba(37, 99, 235, 0.08) 35%,
+            rgba(30, 64, 175, 0.02) 60%,
             transparent 70%);
     pointer-events: none;
     z-index: 0;

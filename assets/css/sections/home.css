@@ -4,18 +4,6 @@
     font-weight: 400;
 }
 
-/* Cursor blink effect */
-.cursor-prompt::after {
-    content: '';
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    background: #ffffff;
-    margin-left: 2px;
-    animation: blink 1s infinite;
-    vertical-align: text-bottom;
-}
-
 /* Name Section */
 .terminal-name {
     font-family: 'Fira Code', monospace;
@@ -54,8 +42,7 @@
 }
 
 .status-ok {
-    color: #00d4d4;
-    /* Changed from #00ff00 to cyan */
+    color: var(--accent);
     font-weight: 600;
     font-family: monospace;
     min-width: 60px;
@@ -91,7 +78,7 @@
 }
 
 .user-host {
-    color: #00d4d4;
+    color: var(--accent);
     font-weight: 600;
 }
 
@@ -110,7 +97,7 @@
 }
 
 .arrow {
-    color: #00d4d4;
+    color: var(--accent);
     font-weight: 600;
 }
 
@@ -231,7 +218,7 @@
 /* Typewriter Cursor */
 .typing-cursor::after {
     content: '█';
-    color: #00d4d4;
+    color: var(--accent);
     animation: blink 1s step-end infinite;
     margin-left: 2px;
     vertical-align: baseline;

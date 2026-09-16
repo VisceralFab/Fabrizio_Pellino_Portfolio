@@ -23,6 +23,9 @@ let zoomOverlay = null;
 let zoomOverlayImg = null;
 let zoomOverlayLens = null;
 let isLensActive = false;
+let zoomScale = 1.0;
+let lensZoom = 2.5;
+let lastPointerEvent = null;
 
 // Simple Router
 async function loadPage(addToHistory = true) {
@@ -205,7 +208,7 @@ function ensureZoomOverlay() {
 
     // Close when clicking the dim background
     zoomOverlay.addEventListener('click', (e) => {
-        if (e.target === zoomOverlay) {
+        if (e.target === zoomOverlay || e.target.classList.contains('image-zoom-content')) {
             hideZoomOverlay();
         }
     });
@@ -217,39 +220,61 @@ function ensureZoomOverlay() {
         }
     });
 
-    // Lens interactions - zoom on mousemove, lens on mousedown
-    zoomOverlayImg.addEventListener('mousemove', (e) => {
-        updateLensPosition(e);
+    // Mouse tracking for lens position
+    zoomOverlay.addEventListener('mousemove', (e) => {
+        lastPointerEvent = e;
+        if (isLensActive) {
+            updateLensPosition(e);
+        }
     });
 
+    // Lens interactions on mousedown / mouseup
     zoomOverlayImg.addEventListener('mousedown', (e) => {
         e.preventDefault();
         isLensActive = true;
         zoomOverlayLens.classList.add('is-active');
         zoomOverlayImg.classList.add('lens-active');
+        updateLensPosition(e);
     });
 
     window.addEventListener('mouseup', () => {
         isLensActive = false;
-        zoomOverlayLens.classList.remove('is-active');
-        zoomOverlayImg.classList.remove('lens-active');
+        if (zoomOverlayLens) zoomOverlayLens.classList.remove('is-active');
+        if (zoomOverlayImg) zoomOverlayImg.classList.remove('lens-active');
     });
-
 
     zoomOverlayImg.addEventListener('mouseleave', () => {
         if (!zoomOverlay) return;
-        zoomOverlayImg.classList.remove('zoom-active');
         zoomOverlayLens.classList.remove('is-active');
         isLensActive = false;
     });
+
+    // Scroll wheel adjusts ONLY the zoom cursor lens (expanded range: 0.4x to 10.0x)
+    zoomOverlay.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const zoomFactor = e.deltaY < 0 ? 1.18 : 0.85;
+        lensZoom = Math.max(0.4, Math.min(10.0, lensZoom * zoomFactor));
+
+        if (isLensActive && lastPointerEvent) {
+            updateLensPosition(lastPointerEvent);
+        }
+    }, { passive: false });
 }
 
 function showZoomOverlayFromImage(sourceImg) {
     ensureZoomOverlay();
     if (!zoomOverlay || !zoomOverlayImg) return;
 
+    zoomScale = 1.0;
+    lensZoom = 2.5;
+    isLensActive = false;
     zoomOverlayImg.src = sourceImg.src;
+    zoomOverlayImg.style.transform = 'scale(1)';
+    zoomOverlayImg.style.transformOrigin = 'center center';
     zoomOverlayImg.classList.remove('zoom-active');
+    if (zoomOverlayLens) zoomOverlayLens.classList.remove('is-active');
     zoomOverlay.classList.add('is-visible');
 }
 
@@ -258,11 +283,13 @@ function hideZoomOverlay() {
     zoomOverlay.classList.remove('is-visible');
     if (zoomOverlayImg) {
         zoomOverlayImg.classList.remove('zoom-active');
+        zoomOverlayImg.style.transform = 'scale(1)';
     }
     if (zoomOverlayLens) {
         zoomOverlayLens.classList.remove('is-active');
     }
     isLensActive = false;
+    zoomScale = 1.0;
 }
 
 function updateLensPosition(event) {
@@ -291,20 +318,18 @@ function updateLensPosition(event) {
     const realX = x * scaleX;
     const realY = y * scaleY;
 
-    const zoom = 2.4; // magnification level
-
-    // Apply lens background
+    // Apply lens background with dynamic magnification
     zoomOverlayLens.style.backgroundImage = `url(${img.src})`;
     zoomOverlayLens.style.backgroundSize = `
-        ${img.naturalWidth * zoom}px
-        ${img.naturalHeight * zoom}px
+        ${img.naturalWidth * lensZoom}px
+        ${img.naturalHeight * lensZoom}px
     `;
 
     const lensSize = zoomOverlayLens.offsetWidth / 2;
 
     zoomOverlayLens.style.backgroundPosition = `
-        ${-(realX * zoom) + lensSize}px
-        ${-(realY * zoom) + lensSize}px
+        ${-(realX * lensZoom) + lensSize}px
+        ${-(realY * lensZoom) + lensSize}px
     `;
 }
 

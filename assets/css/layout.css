@@ -16,7 +16,7 @@
 }
 
 .section-label {
-    color: #00d4d4;
+    color: var(--accent);
     font-size: 15px;
     font-weight: 500;
     margin-bottom: 5px;

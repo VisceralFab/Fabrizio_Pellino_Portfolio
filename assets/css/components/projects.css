@@ -20,8 +20,8 @@
 }
 
 .project-card:hover {
-    border-color: rgba(0, 212, 212, 0.5);
-    box-shadow: 0 0 25px rgba(0, 180, 180, 0.15);
+    border-color: rgba(77, 163, 255, 0.5);
+    box-shadow: 0 0 25px rgba(37, 99, 235, 0.15);
     transform: translateY(-3px);
 }
 
@@ -35,7 +35,7 @@
 
 .project-category {
     font-size: 12px;
-    color: #00d4d4;
+    color: var(--accent);
     margin-bottom: 20px;
     font-weight: 500;
 }
@@ -61,7 +61,7 @@
 }
 
 .project-number {
-    color: #00d4d4;
+    color: var(--accent);
 }
 
 .project-detail-content {
@@ -80,29 +80,49 @@
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 25px;
-    background: linear-gradient(135deg, #1a3a5c, #2d5a87);
+    background: transparent;
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .project-image img {
     width: 100%;
     height: auto;
     display: block;
+    border-radius: 8px;
+}
+
+/* Ensure all images in project grids stretch to the exact same height */
+.project-main div[style*="display: grid"] {
+    align-items: stretch;
+}
+
+.project-main div[style*="display: grid"] .project-image {
+    height: 100%;
+    margin-bottom: 0;
+}
+
+.project-main div[style*="display: grid"] .project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 /* IMAGE ZOOM OVERLAY ("At a Glance") */
 .image-zoom-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.78);
+    background: rgba(0, 0, 0, 0.88);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 999;
+    z-index: 9999;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s ease-out;
-    backdrop-filter: blur(4px);
+    transition: opacity 0.2s ease-out;
+    backdrop-filter: blur(8px);
 }
 
 .image-zoom-overlay.is-visible {
@@ -112,83 +132,80 @@
 
 .image-zoom-content {
     position: relative;
-    max-width: 90vw;
-    max-height: 85vh;
-    border-radius: 16px;
-    overflow: hidden;
-    background: radial-gradient(circle at top left, #111826 0%, #05070b 55%, #020308 100%);
-    border: 1px solid rgba(0, 212, 212, 0.35);
-    box-shadow:
-        0 0 40px rgba(0, 0, 0, 0.7),
-        0 0 60px rgba(0, 212, 212, 0.12);
+    max-width: 92vw;
+    max-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
 }
 
 .image-zoom-img {
     display: block;
-    max-width: 100%;
-    max-height: 85vh;
+    max-width: 90vw;
+    max-height: 82vh;
     object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.6);
     transform-origin: center center;
-    transform: scale(1);
+    cursor: crosshair;
     transition: transform 0.08s ease-out;
-}
-
-.image-zoom-img.zoom-active {
-    transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
-    transform: scale(2.4);
+    user-select: none;
 }
 
 .image-zoom-lens {
     position: fixed;
-    width: 170px;
-    height: 170px;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
-    border: 2px solid #00d4d4;
-
+    border: 2px solid var(--accent);
     pointer-events: none;
     transform: translate(-50%, -50%);
     opacity: 0;
-
-    background-image: url('');
+    transition: opacity 0.15s ease;
+    box-shadow: 0 0 24px rgba(77, 163, 255, 0.4), inset 0 0 16px rgba(77, 163, 255, 0.2);
     background-repeat: no-repeat;
-    background-size: 240%;
+    z-index: 10001;
 }
-
 
 .image-zoom-lens.is-active {
     opacity: 1;
 }
 
+.image-zoom-img.lens-active {
+    cursor: none;
+}
+
+/* Plain text bottom-left hint with no box */
 .image-zoom-hint {
     position: fixed;
-    left: 18px;
-    bottom: 18px;
-
-    font-size: 12px;
-    color: #e8faff;
+    left: 24px;
+    bottom: 24px;
+    font-size: 11px;
+    font-weight: 400;
+    color: #8f9aa8;
     font-family: 'Fira Code', monospace;
-
-    background: rgba(5, 10, 20, 0.95);
-    padding: 10px 14px;
-    border-radius: 8px;
-
-    border: 1px solid rgba(0, 212, 212, 0.5);
-    backdrop-filter: blur(6px);
-
+    letter-spacing: 0.02em;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
     display: flex;
     align-items: center;
     gap: 8px;
-
-    box-shadow:
-        0 0 15px rgba(0, 212, 212, 0.35),
-        0 0 40px rgba(0, 0, 0, 0.6);
+    user-select: none;
+    pointer-events: none;
+    z-index: 10000;
+    text-align: left;
 }
 
-
 .image-zoom-hint::before {
-    content: '+*+';
-    color: #00f6ff;
-    text-shadow: 0 0 8px rgba(0, 246, 255, 0.9);
+    content: '***';
+    color: #8f9aa8;
+    font-family: 'Fira Code', monospace;
 }
 
 .project-info-text {
@@ -238,7 +255,7 @@
 }
 
 .meta-label {
-    color: #00d4d4;
+    color: var(--accent);
     font-weight: 500;
 }
 
@@ -276,108 +293,6 @@
     }
 }
 
-/* Image Zoom Overlay - "At a Glance" Feature */
-.image-zoom-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    z-index: 9999;
-    cursor: default;
-}
-
-.image-zoom-overlay.is-visible {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s ease;
-}
-
-.image-zoom-content {
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.image-zoom-img {
-    max-width: 100%;
-    max-height: 80vh;
-    object-fit: contain;
-    cursor: crosshair;
-    transition: transform 0.1s ease;
-    border-radius: 8px;
-    box-shadow: 0 10px 50px rgba(0, 212, 212, 0.3);
-}
-
-.image-zoom-img.zoom-active {
-    transform: scale(2);
-    transform-origin: var(--zoom-x, 50%) var(--zoom-y, 50%);
-    cursor: none;
-}
-
-.image-zoom-lens {
-    position: fixed;
-    width: 150px;
-    height: 150px;
-    border: 3px solid #00d4d4;
-    border-radius: 50%;
-    pointer-events: none;
-    transform: translate(-50%, -50%);
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    box-shadow: 0 0 20px rgba(0, 212, 212, 0.5),
-        inset 0 0 20px rgba(0, 212, 212, 0.2);
-    background: radial-gradient(circle, rgba(0, 212, 212, 0.1) 0%, transparent 70%);
-}
-
-.image-zoom-lens.is-active {
-    opacity: 1;
-}
-
-.image-zoom-img.lens-active {
-    cursor: none;
-}
-
-
-.image-zoom-hint {
-    margin-top: 20px;
-    color: #00d4d4;
-    font-family: 'Fira Code', monospace;
-    font-size: 13px;
-    text-align: center;
-    padding: 10px 20px;
-    background: rgba(0, 212, 212, 0.1);
-    border: 1px solid rgba(0, 212, 212, 0.3);
-    border-radius: 6px;
-    max-width: 600px;
-}
-
-/* Project images cursor hint */
-.project-image img {
-    transition: all 0.3s ease;
-}
-
-.project-image img:hover {
-    box-shadow: 0 0 20px rgba(0, 212, 212, 0.3);
-    transform: scale(1.02);
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
 /* MEDIA SLIDER STYLES */
 .project-media-slider {
     position: relative;
@@ -385,7 +300,7 @@
     overflow: hidden;
     border-radius: 8px;
     margin-bottom: 25px;
-    background: linear-gradient(135deg, #1a3a5c, #2d5a87);
+    background: #000;
 }
 
 .project-media-track {
@@ -407,8 +322,8 @@
     top: 50%;
     transform: translateY(-50%);
     background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(0, 212, 212, 0.4);
-    color: #00d4d4;
+    border: 1px solid rgba(77, 163, 255, 0.4);
+    color: var(--accent);
     width: 45px;
     height: 45px;
     border-radius: 50%;
@@ -422,9 +337,9 @@
 }
 
 .media-arrow:hover {
-    background: rgba(0, 212, 212, 0.2);
-    border-color: #00d4d4;
-    box-shadow: 0 0 20px rgba(0, 212, 212, 0.3);
+    background: rgba(77, 163, 255, 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(77, 163, 255, 0.3);
     transform: translateY(-50%) scale(1.1);
 }
 
@@ -470,14 +385,14 @@
 }
 
 .media-indicator:hover {
-    background: rgba(0, 212, 212, 0.5);
-    border-color: #00d4d4;
+    background: rgba(77, 163, 255, 0.5);
+    border-color: var(--accent);
 }
 
 .media-indicator.active {
-    background: #00d4d4;
-    border-color: #00d4d4;
-    box-shadow: 0 0 10px rgba(0, 212, 212, 0.5);
+    background: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(77, 163, 255, 0.5);
 }
 
 /* Video Styles */
@@ -486,12 +401,18 @@
     border-radius: 8px;
     overflow: hidden;
     background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .project-video video {
     width: 100%;
     height: auto;
+    max-height: min(520px, 60dvh);
+    object-fit: contain;
     display: block;
+    border-radius: 8px;
 }
 
 /* Image Styles inside slider */
@@ -499,33 +420,19 @@
     width: 100%;
     border-radius: 8px;
     overflow: hidden;
-    background: linear-gradient(135deg, #1a3a5c, #2d5a87);
+    background: transparent;
     margin-bottom: 0;
     display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .project-media-slide .project-image img {
     width: 100%;
     height: auto;
     display: block;
-}
-
-/* Standalone project-image (not in slider) */
-.project-image {
-    width: 100%;
     border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 25px;
-    background: linear-gradient(135deg, #1a3a5c, #2d5a87);
-    display: flex;
 }
-
-.project-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
 
 .project-detail-content--stack {
     margin-top: 40px;
@@ -564,7 +471,7 @@
     overflow-y: scroll;
     overflow-x: hidden;
     border-radius: 8px;
-    background: linear-gradient(135deg, #1a3a5c, #2d5a87);
+    background: rgba(10, 20, 35, 0.5);
     padding: 15px;
     box-sizing: border-box;
     margin-bottom: 25px;
@@ -590,10 +497,6 @@
 .scrollable-media-container::-webkit-scrollbar-thumb {
     background: rgba(100, 150, 200, 0.5);
     border-radius: 5px;
-}
-
-.scrollable-media-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(100, 150, 200, 0.8);
 }
 
 .scrollable-media-container::-webkit-scrollbar-thumb:hover {
