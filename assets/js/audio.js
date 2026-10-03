@@ -8,7 +8,7 @@
   const TRACK_TITLE = 'Kyuujitsuno Sugoshikakata';
   // The UI is a comfortable site-volume scale: even 100% is master-capped
   // so the source track can never reach the browser's full output volume.
-  const DEFAULT_VOLUME = 0.06;
+  const DEFAULT_VOLUME = 0.5;
   const MAX_OUTPUT_VOLUME = 0.18;
   const FALLBACK_VOLUME = 0.3;
   const label = musicControl.querySelector('.music-label');
