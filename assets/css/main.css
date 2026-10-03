@@ -108,6 +108,19 @@
     color: #c9d6e4;
 }
 
+.music-now-playing {
+    color: #8f9aa8;
+    font-family: 'Fira Code', monospace;
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+}
+
+.music-now-playing[hidden] {
+    display: none;
+}
+
 .music-controls-row {
     display: flex;
     align-items: center;
@@ -203,7 +216,12 @@
 }
 
 .music-percent {
-    display: none;
+    display: inline-block;
+    min-width: 2.8ch;
+    color: #8f9aa8;
+    font: 400 9px/1 'Fira Code', monospace;
+    text-align: right;
+    white-space: nowrap;
 }
 
 @media (max-width: 600px) {

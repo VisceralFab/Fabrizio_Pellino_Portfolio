@@ -24,7 +24,7 @@ let zoomOverlayImg = null;
 let zoomOverlayLens = null;
 let isLensActive = false;
 let zoomScale = 1.0;
-let lensZoom = 2.5;
+let lensZoom = 1.0;
 let lastPointerEvent = null;
 
 // Simple Router
@@ -196,7 +196,7 @@ function ensureZoomOverlay() {
             <img class="image-zoom-img" alt="Zoomed project image">
             <div class="image-zoom-lens"></div>
             <div class="image-zoom-hint">
-                Hold left click to inspect details. Press Esc or click outside to close.
+                Hold left click to inspect details. Use the scroll wheel to increase zoom on the magnifier. Press Esc or click outside to close.
             </div>
         </div>
     `;
@@ -268,7 +268,7 @@ function showZoomOverlayFromImage(sourceImg) {
     if (!zoomOverlay || !zoomOverlayImg) return;
 
     zoomScale = 1.0;
-    lensZoom = 2.5;
+    lensZoom = 1.0;
     isLensActive = false;
     zoomOverlayImg.src = sourceImg.src;
     zoomOverlayImg.style.transform = 'scale(1)';

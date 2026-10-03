@@ -12,6 +12,7 @@
   const MAX_OUTPUT_VOLUME = 0.18;
   const FALLBACK_VOLUME = 0.3;
   const label = musicControl.querySelector('.music-label');
+  const nowPlaying = musicControl.querySelector('.music-now-playing');
   const percentDisplay = musicControl.querySelector('.music-percent');
   const srLabel = toggle.querySelector('.sr-only');
   let enabled = false;
@@ -113,6 +114,7 @@
     }
 
     toggle.setAttribute('aria-pressed', String(isPlaying));
+    if (nowPlaying) nowPlaying.hidden = !isPlaying;
     toggle.title = isPlaying ? 'Pause background music' : 'Play background music';
     toggle.setAttribute('aria-label', toggle.title);
     if (srLabel) srLabel.textContent = toggle.title;

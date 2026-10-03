@@ -155,8 +155,8 @@
 
 .image-zoom-lens {
     position: fixed;
-    width: 160px;
-    height: 160px;
+    width: 240px;
+    height: 240px;
     border-radius: 50%;
     border: 2px solid var(--accent);
     pointer-events: none;
