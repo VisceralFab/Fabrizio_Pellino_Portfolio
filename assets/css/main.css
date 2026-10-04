@@ -5,7 +5,7 @@
 @import 'components/buttons.css';
 @import 'components/profile.css';
 @import 'components/skills.css';
-@import 'components/projects.css';
+@import 'components/projects.css?v=project-layout-placeholders-20261004';
 @import 'sections/home.css';
 @import 'sections/about.css';
 @import 'components/window-tools.css';
